@@ -1,0 +1,30 @@
+cmake_minimum_required(VERSION 2.8)
+set(FRAMEWORK_HDRS
+  "${CMAKE_CURRENT_SOURCE_DIR}/Application.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/BaseSprite.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Enumerations.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Font.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/FontManager.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/LineRenderer.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/SpriteManager.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Texture.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/TextureManager.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Camera.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Utilities.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Config.h"
+  PARENT_SCOPE
+)
+
+set(FRAMEWORK_SRCS
+  "${CMAKE_CURRENT_SOURCE_DIR}/Application.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/BaseSprite.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Font.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/FontManager.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/LineRenderer.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/SpriteManager.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Texture.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/TextureManager.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Utilities.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Config.cpp"
+  PARENT_SCOPE
+)

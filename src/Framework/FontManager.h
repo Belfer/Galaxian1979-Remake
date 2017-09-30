@@ -3,78 +3,76 @@
 //	Date:	08/07/2015
 //	Brief:	A font manager class for being in charge of various fonts etc
 //////////////////////////////////////////////////////////////////////////
-#ifndef _FONT_MANAGER_H_
-#define _FONT_MANAGER_H_
-//////////////////////////////////////////////////////////////////////////
+#pragma once
 
-#include <GL/glew.h>
+#include <glad/glad.h>
+
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
 #include <glm/ext.hpp>
+#include <glm/glm.hpp>
 #include <list>
+#include <string>
 #include <vector>
 
-namespace NHTV
-{
-	//forwad declarations
-	class Font;
-	struct CharacterBillboard;
-	struct FontVertex;
+namespace NHTV {
+// forwad declarations
+class Font;
+struct CharacterBillboard;
+struct FontVertex;
 
-	//////////////////////////////////////////////////////////////////////////
-	class FontManager
-	{
-	public:
-		static FontManager* CreateInstance();
-		static FontManager* GetInstance();
-		static void			DestroyInstance();
-	protected:
-		FontManager();
-		~FontManager();
-		static FontManager*     m_pInstance;
-	public:
-		void                Update(float fTimeStep);
-		void				Draw(unsigned int a_uiProgramID);
-		void				DrawString(glm::vec4 v4Position, float a_fSize, glm::vec4 v4colour, const char* pBuffer);
-		Font*               GetDebugFont();
-		Font*               GetCurrentFont();
+//////////////////////////////////////////////////////////////////////////
+class FontManager {
+public:
+  static FontManager *CreateInstance();
+  static FontManager *GetInstance();
+  static void DestroyInstance();
 
-		void                AddFont(Font* pFont);
-		Font*               AddFont(const char* pFontName);
+protected:
+  FontManager();
+  ~FontManager();
+  static FontManager *m_pInstance;
 
-		void                SetFont(Font* pFont);
-		Font*               SetFont(const char* pFontName);
+public:
+  void Update(float fTimeStep);
+  void Draw(uint a_uiProgramID);
+  void DrawString(glm::vec4 v4Position, float a_fSize, glm::vec4 v4colour,
+                  const std::string &buffer);
+  Font *GetDebugFont();
+  Font *GetCurrentFont();
 
-		void                RemoveFont(Font* pFont);
-		void                RemoveFont(const char* pFontName);
+  void AddFont(Font *pFont);
+  Font *AddFont(const char *pFontName);
 
-	private:
+  void SetFont(Font *pFont);
+  Font *SetFont(const char *pFontName);
 
-		//This is a simple struct to allow us to easily have fonts that can be swapped in and out 
-		//for rendering as the render for all characters is done in one long stream, with this we can 
-		//break that stream up and allocate the appropriate font texture where required
-		struct FontBlock
-		{
-			Font* pFont;
-			unsigned int iCharacterIndexStart;
-			unsigned int iNumCharsToRender;
-		};
-		std::vector<FontBlock*>  m_pFontRenderQueue;
+  void RemoveFont(Font *pFont);
+  void RemoveFont(const char *pFontName);
 
-		Font*                   m_pDebugFont;
-		Font*                   m_pCurrentFont;
-		std::list<Font*>        m_pFontList;
+private:
+  // This is a simple struct to allow us to easily have fonts that can be
+  // swapped in and out
+  // for rendering as the render for all characters is done in one long stream,
+  // with this we can
+  // break that stream up and allocate the appropriate font texture where
+  // required
+  struct FontBlock {
+    Font *pFont;
+    uint iCharacterIndexStart;
+    uint iNumCharsToRender;
+  };
+  std::vector<FontBlock *> m_pFontRenderQueue;
 
-		GLuint				m_uiVAO;
-		GLuint				m_uiVBO;
-		GLuint				m_uiIBO;
-		glm::mat4			m_m4ModelView;
-		CharacterBillboard* m_pCharacterBillboards;
-		unsigned int		m_uiCharactersToDraw;
-	};
+  Font *m_pDebugFont;
+  Font *m_pCurrentFont;
+  std::list<Font *> m_pFontList;
 
-}//Namespace NHTV
+  GLuint m_uiVAO;
+  GLuint m_uiVBO;
+  GLuint m_uiIBO;
+  glm::mat4 m_m4ModelView;
+  CharacterBillboard *m_pCharacterBillboards;
+  uint m_uiCharactersToDraw;
+};
 
- //////////////////////////////////////////////////////////////////////////
-#endif //_FONT_MANAGER_H_
- //////////////////////////////////////////////////////////////////////////
+} // Namespace NHTV

@@ -1,72 +1,39 @@
 #include "GalaxianApp.hpp"
 #include "Factory.hpp"
+#include "Framework/Config.h"
 #include "Systems.hpp"
-#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/ext.hpp>
+#include <imgui.h>
 
-APPLICATION_ENTRY(GalaxianApp)
-#define ENABLE_DEBUG 1
+void GalaxianApp::receive(const PlayerKilledEvent &e) { m_slowmo = true; }
 
-#if (ENABLE_DEBUG)
-bool keytmp = true;
-bool debbuging = false;
-bool slowmo = false;
-bool postproc = true;
-#endif
-
-EntitySpawnerSystem::EntitySpawnerVars spawnerVars;
-
-void GalaxianApp::receive(const PlayerKilledEvent &e) {
-  m_timeDilation = 0.25f;
+void GalaxianApp::receive(const GameResetEvent &e) {
+  ClearCameras();
+  m_slowmo = false;
 }
 
-void GalaxianApp::receive(const GameResetEvent &e) { m_timeDilation = 1.f; }
+void GalaxianApp::receive(const ExplosionEvent &e) {
+  m_time = 0;
+  SetPositionPostFxVar(vec4(e.pos.x / 512.f, 1 - (e.pos.y / 1024.f), 0, 0));
+}
 
 bool GalaxianApp::onCreate(int argc, char **argv) {
   srand(time(NULL));
 
-  setBackgroundColor(SColour(0x0C, 0x0C, 0x0C, 0xFF));
-
-  spawnerVars.playerSpeed = 300.f;
-  spawnerVars.playerFirerate = 0.25f;
-
-  spawnerVars.enemySpeed = 200.f;
-  spawnerVars.enemyFirerate = 0.5f;
-
   // Load resources
-  SetPostProcessFx("../resources/shaders/bloom.fsh");
+  SetPostProcessFx((Config::g_ResourcesPath + "/shaders/postpass.fsh").c_str());
   SetColorPostFxVar(vec4(1, 1, 1, 1));
 
-  AddFont("../resources/fonts/invaders.fnt");
+  setBackgroundColor(SColour(0x0C, 0x0C, 0x0C, 0xFF));
 
-  spawnerVars.bulletSpr =
-      CreateSprite("../resources/images/bullet.png", 16, 16, true);
-  spawnerVars.playerSpr =
-      CreateSprite("../resources/images/cannon.png", 32, 32, true);
-  spawnerVars.enemySpr =
-      CreateSprite("../resources/images/invader.png", 32, 32, true);
+  GVars::load(*this);
 
-  // Configure event receivers
+  // Configure event receiversr
   configure(events);
 
   // Add systems
-  systems.add<HealthSystem>(*this, entities, events, systems);
-  systems.add<PhysicsSystem>(*this, entities, events, systems);
-  systems.add<CollisionSystem>(*this, entities, events, systems);
-  systems.add<PlayerSystem>(*this, entities, events, systems);
-  systems.add<EnemySystem>(*this, entities, events, systems);
-  systems.add<BulletSystem>(*this, entities, events, systems);
-
-  systems.add<EntitySpawnerSystem>(*this, entities, events, systems,
-                                   spawnerVars);
-
-  systems.add<MenuSystem>(*this, entities, events, systems);
-  systems.add<ParticleSystem>(*this, entities, events, systems);
-  systems.add<SpriteSystem>(*this, entities, events, systems);
-  systems.add<TextSystem>(*this, entities, events, systems);
-  systems.add<LineSystem>(*this, entities, events, systems);
-  systems.add<DebugSystem>(*this, entities, events, systems);
+  addSystems();
   systems.configure();
 
   // Reset level
@@ -79,46 +46,20 @@ void GalaxianApp::onUpdate(float deltaTime) {
   if (IsKeyDown(KEY_ESCAPE))
     destroy();
 
-#if (ENABLE_DEBUG)
-  if (IsKeyDown(KEY_D)) {
-    if (keytmp) {
-      debbuging = !debbuging;
-      keytmp = false;
-    }
-  } else if (IsKeyDown(KEY_R)) {
-    if (keytmp) {
-      events.emit<GameResetEvent>();
-      keytmp = false;
-    }
-  } else if (IsKeyDown(KEY_S)) {
-    if (keytmp) {
-      slowmo = !slowmo;
-      if (slowmo)
-        m_timeDilation = 0.25f;
-      else
-        m_timeDilation = 1.f;
-      keytmp = false;
-    }
-  } else if (IsKeyDown(KEY_P)) {
-    if (keytmp) {
-      postproc = !postproc;
-      SetPostProcessEnabled(postproc);
-      keytmp = false;
-    }
-  } else {
-    keytmp = true;
-  }
-#endif
+  if (m_paused)
+    m_timeDilation = Lerp(m_timeDilation, 0.f, 0.1f);
+  else if (m_slowmo)
+    m_timeDilation = Lerp(m_timeDilation, SLOWMO_TD, 0.05f);
+  else
+    m_timeDilation = Lerp(m_timeDilation, 1.f, 0.1f);
 
+  SetPostProcessEnabled(m_postproc);
+  SetTimePostFxVar(m_time);
+
+  // Update logic systems
   const float dt = deltaTime * m_timeDilation;
-  systems.update<HealthSystem>(dt);
-  systems.update<PhysicsSystem>(dt);
-  systems.update<CollisionSystem>(dt);
-  systems.update<PlayerSystem>(dt);
-  systems.update<EnemySystem>(dt);
-  systems.update<BulletSystem>(dt);
-
-  systems.update<EntitySpawnerSystem>(dt);
+  m_time += dt;
+  updateSystems(dt);
 }
 
 void GalaxianApp::onDraw() {
@@ -126,22 +67,51 @@ void GalaxianApp::onDraw() {
 
   // Update render systems
   const float dt = GetDeltaTime() * m_timeDilation;
+  renderSystems(dt);
+}
+
+void GalaxianApp::onEditor() {}
+
+void GalaxianApp::onDestroy() {
+  // Unload resources
+  GVars::unload(*this);
+}
+
+void GalaxianApp::addSystems() {
+  // Add systems
+  systems.add<HealthSystem>(*this, entities, events, systems);
+  systems.add<PhysicsSystem>(*this, entities, events, systems);
+  systems.add<CollisionSystem>(*this, entities, events, systems);
+  systems.add<PlayerSystem>(*this, entities, events, systems);
+  systems.add<EnemySystem>(*this, entities, events, systems);
+  systems.add<BulletSystem>(*this, entities, events, systems);
+  systems.add<PowerUpSystem>(*this, entities, events, systems);
+  systems.add<SpawnSystem>(*this, entities, events, systems);
+
+  systems.add<MenuSystem>(*this, entities, events, systems);
+  systems.add<ParticleSystem>(*this, entities, events, systems);
+  systems.add<SpriteSystem>(*this, entities, events, systems);
+  systems.add<TextSystem>(*this, entities, events, systems);
+  systems.add<LineSystem>(*this, entities, events, systems);
+}
+
+void GalaxianApp::updateSystems(float dt) {
+  // Update logic systems
+  systems.update<HealthSystem>(dt);
+  systems.update<PhysicsSystem>(dt);
+  systems.update<CollisionSystem>(dt);
+  systems.update<PlayerSystem>(dt);
+  systems.update<EnemySystem>(dt);
+  systems.update<BulletSystem>(dt);
+  systems.update<PowerUpSystem>(dt);
+  systems.update<SpawnSystem>(dt);
+}
+
+void GalaxianApp::renderSystems(float dt) {
+  // Update render systems
   systems.update<MenuSystem>(dt);
   systems.update<SpriteSystem>(dt);
   systems.update<ParticleSystem>(dt);
   systems.update<TextSystem>(dt);
   systems.update<LineSystem>(dt);
-
-#if (ENABLE_DEBUG)
-  if (debbuging)
-    systems.update<DebugSystem>(dt);
-#endif
-}
-
-void GalaxianApp::onDestroy() {
-  // Unload resources
-  RemoveFont("../resources/fonts/invaders.fnt");
-  DestroySprite(spawnerVars.bulletSpr);
-  DestroySprite(spawnerVars.playerSpr);
-  DestroySprite(spawnerVars.enemySpr);
 }

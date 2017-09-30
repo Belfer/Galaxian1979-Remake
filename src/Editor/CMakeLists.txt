@@ -1,0 +1,20 @@
+cmake_minimum_required(VERSION 2.8)
+set(EDITOR_HDRS
+  "${CMAKE_CURRENT_SOURCE_DIR}/GalaxianEditor.hpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Systems.hpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Editor.hpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Console.hpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Stats.hpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/imgui_impl.h"
+  PARENT_SCOPE
+)
+
+set(EDITOR_SRCS
+  "${CMAKE_CURRENT_SOURCE_DIR}/GalaxianEditor.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Systems.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Editor.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Console.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Stats.hpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/imgui_impl.cpp"
+  PARENT_SCOPE
+)

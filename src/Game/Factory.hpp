@@ -7,7 +7,50 @@
 using namespace entityx;
 using namespace glm;
 
+namespace GVars {
+
+extern float playerSpeed;
+extern float playerFirerate;
+extern float playerRadius;
+extern uint playerMask;
+extern uint playerSpr;
+
+extern float enemySpeed;
+extern float enemyFirerate;
+extern float enemyRadius;
+extern uint enemyMask;
+extern uint enemySpr;
+
+extern float bulletSpeed;
+extern float bulletRadius;
+extern uint bulletSpr;
+
+extern uint playerBulletMask;
+extern uint enemyBulletMask;
+
+extern float powerUpSpeed;
+extern float powerUpRadius;
+extern uint powerUpMask;
+
+extern uint powerShieldSpr;
+extern uint shieldSpr;
+
+extern void load(Application &);
+extern void unload(Application &);
+}
+
 namespace Factory {
+
+/**
+ * @brief newCamera
+ * @param entityMgr
+ * @param pos
+ * @param rot
+ * @param app
+ * @return
+ */
+Entity newCamera(EntityManager &entityMgr, const vec3 &pos, const quat &rot,
+                 Application &app);
 
 /**
  * @brief newParticle
@@ -20,10 +63,25 @@ namespace Factory {
  * @param size
  * @return
  */
-Entity newParticle(EntityManager &entityMgr, const vec2 &pos,
+Entity newParticle(EntityManager &entityMgr, const vec3 &pos,
                    ParticleCmp::Mode mode, float maxLife,
                    ParticleCmp::ResetFn resetFn, ParticleCmp::UpdateFn updateFn,
                    size_t size);
+
+/**
+ * @brief newPowerUp
+ * @param entityMgr
+ * @param pos
+ * @param vel
+ * @param sprite
+ * @param color
+ * @param collider
+ * @param mask
+ * @return
+ */
+Entity newPowerUp(EntityManager &entityMgr, const vec3 &pos, const vec3 &vel,
+                  uint sprite, uint color, float collider, uint mask,
+                  PowerCmp::PowerUp power);
 
 /**
  * @brief Spawns a new bullet entity
@@ -31,44 +89,33 @@ Entity newParticle(EntityManager &entityMgr, const vec2 &pos,
  * @param pos, of entity
  * @param vel, of entity
  * @param sprite, to use
+ * @param color, to tint
  * @param collider, body
  * @param damage, on hit
  * @return entity handle
  */
-Entity newBullet(EntityManager &entityMgr, const vec2 &pos, const vec2 &vel,
-                 unsigned int sprite, unsigned int color, float collider,
-                 float damage);
+Entity newBullet(EntityManager &entityMgr, const vec3 &pos, const quat &rot,
+                 const vec3 &vel, uint sprite, uint color, float collider,
+                 uint mask, float damage);
 
 /**
- * @brief Spawns a new player entity
+ * @brief newPlayer
  * @param entityMgr
  * @param pos
- * @param sprite
- * @param collider
- * @param bulletSpr
- * @param fireRate
- * @param speed
  * @param lives
  * @return
  */
-Entity newPlayer(EntityManager &entityMgr, const vec2 &pos, unsigned int sprite,
-                 float collider, unsigned int bulletSpr, float fireRate,
-                 float speed, unsigned char lives);
+Entity newPlayer(EntityManager &entityMgr, const vec3 &pos, uchar lives);
 
 /**
  * @brief newEnemy
  * @param entityMgr
- * @param sprite
- * @param collider
- * @param bulletSpr
- * @param fireRate
  * @param speed
  * @param points
  * @param color
  * @param idxPos
  * @return
  */
-Entity newEnemy(EntityManager &entityMgr, unsigned int sprite, float collider,
-                unsigned int bulletSpr, float fireRate, float speed,
-                unsigned int points, unsigned int color, const vec2 &idxPos);
+Entity newEnemy(EntityManager &entityMgr, float speed, uint points, uint color,
+                const vec3 &idxPos);
 }

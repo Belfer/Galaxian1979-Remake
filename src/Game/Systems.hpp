@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Events.hpp"
-#include <Application.h>
+#include "Framework/Application.h"
 #include <entityx/entityx.h>
 #include <glm/glm.hpp>
 
@@ -42,6 +42,15 @@ public:
 };
 
 /**
+ * @brief The CameraSystem class
+ */
+class CameraSystem : public GalaxianSystem<CameraSystem> {
+public:
+  DEFINE_SYSTEM(CameraSystem)
+  void update(EntityManager &es, EventManager &ev, TimeDelta dt) override;
+};
+
+/**
  * @brief The PhysicsSystem class
  */
 class PhysicsSystem : public GalaxianSystem<PhysicsSystem> {
@@ -60,7 +69,7 @@ public:
   void update(EntityManager &es, EventManager &ev, TimeDelta dt) override;
   // void receive(const CollisionEvent &e);
 
-  void configure(EventManager &es) {
+  void configure(EventManager &ev) {
     // es.subscribe<CollisionEvent>(*this);
   }
 };
@@ -68,37 +77,20 @@ public:
 /**
  * @brief The EntitySpawnerSystem class
  */
-class EntitySpawnerSystem : public GalaxianSystem<EntitySpawnerSystem>,
-                            public Receiver<EntitySpawnerSystem> {
+class SpawnSystem : public GalaxianSystem<SpawnSystem>,
+                    public Receiver<SpawnSystem> {
 public:
-  struct EntitySpawnerVars;
-
-  EntitySpawnerSystem(Application &app, EntityManager &es, EventManager &ev,
-                      SystemManager &sm, const EntitySpawnerVars &vars)
-      : GalaxianSystem(app, es, ev, sm), m_vars(vars) {}
-  void update(EntityManager &es, EventManager &ev, TimeDelta dt) override;
+  DEFINE_SYSTEM(SpawnSystem)
+  void update(EntityManager &es, EventManager &ev, TimeDelta dt) override {}
   void receive(const GameResetEvent &e);
   void receive(const ExplosionEvent &e);
+  void receive(const EntityRemovedEvent &e);
 
-  void configure(EventManager &es) {
-    es.subscribe<GameResetEvent>(*this);
-    es.subscribe<ExplosionEvent>(*this);
+  void configure(EventManager &ev) {
+    ev.subscribe<GameResetEvent>(*this);
+    ev.subscribe<ExplosionEvent>(*this);
+    ev.subscribe<EntityRemovedEvent>(*this);
   }
-
-  struct EntitySpawnerVars {
-    float playerSpeed;
-    float playerFirerate;
-
-    float enemySpeed;
-    float enemyFirerate;
-
-    unsigned int bulletSpr;
-    unsigned int playerSpr;
-    unsigned int enemySpr;
-  };
-
-private:
-  EntitySpawnerVars m_vars;
 };
 
 /**
@@ -110,8 +102,20 @@ public:
   DEFINE_SYSTEM(PlayerSystem)
   void update(EntityManager &es, EventManager &ev, TimeDelta dt) override;
   void receive(const EntityRemovedEvent &e);
+  void receive(const CollisionEvent &e);
+  void receive(const PowerEnableEvent &e);
+  void receive(const PowerDisableEvent &e);
 
-  void configure(EventManager &es) { es.subscribe<EntityRemovedEvent>(*this); }
+  void configure(EventManager &ev) {
+    ev.subscribe<EntityRemovedEvent>(*this);
+    ev.subscribe<CollisionEvent>(*this);
+    ev.subscribe<PowerEnableEvent>(*this);
+    ev.subscribe<PowerDisableEvent>(*this);
+  }
+
+private:
+  Entity m_player;
+  PowerCmp::PowerUp m_power = PowerCmp::NONE;
 };
 
 /**
@@ -124,17 +128,44 @@ public:
   void update(EntityManager &es, EventManager &ev, TimeDelta dt) override;
   void receive(const GameResetEvent &e);
 
-  void configure(EventManager &es) { es.subscribe<GameResetEvent>(*this); }
+  void configure(EventManager &ev) { ev.subscribe<GameResetEvent>(*this); }
 
 private:
-  vec2 m_groupPos;
+  vec3 m_groupPos;
   float m_groupSpeed = 200;
   float m_groupDir = 1;
   float m_attackTimer = 0;
   float m_enemyTimer = 0;
-  unsigned int m_enemiesAttaking = 0;
-  unsigned int m_enemyCount = 0;
+  uint m_enemiesAttaking = 0;
+  uint m_enemyCount = 0;
   bool m_attacking = false;
+};
+
+/**
+ * @brief The PowerUpSystem class
+ */
+class PowerUpSystem : public GalaxianSystem<PowerUpSystem>,
+                      public Receiver<PowerUpSystem> {
+public:
+  DEFINE_SYSTEM(PowerUpSystem)
+  void update(EntityManager &es, EventManager &ev, TimeDelta dt) override;
+  void receive(const GameResetEvent &e);
+  void receive(const CollisionEvent &e);
+  void receive(const PowerEnableEvent &e);
+  void receive(const PowerDisableEvent &e);
+
+  void configure(EventManager &ev) {
+    ev.subscribe<GameResetEvent>(*this);
+    ev.subscribe<CollisionEvent>(*this);
+    ev.subscribe<PowerEnableEvent>(*this);
+    ev.subscribe<PowerDisableEvent>(*this);
+  }
+
+private:
+  PowerCmp::PowerUp m_power = PowerCmp::NONE;
+  bool m_powerActive = false;
+  float m_shieldTimer = 0.f;
+  float m_doubleShotTimer = 0.f;
 };
 
 /**
@@ -147,7 +178,7 @@ public:
   void update(EntityManager &es, EventManager &ev, TimeDelta dt) override;
   void receive(const CollisionEvent &e);
 
-  void configure(EventManager &es) { es.subscribe<CollisionEvent>(*this); }
+  void configure(EventManager &ev) { ev.subscribe<CollisionEvent>(*this); }
 };
 
 /**
@@ -161,14 +192,14 @@ public:
   void receive(const GameResetEvent &e);
   void receive(const EntityRemovedEvent &e);
 
-  void configure(EventManager &es) {
-    es.subscribe<GameResetEvent>(*this);
-    es.subscribe<EntityRemovedEvent>(*this);
+  void configure(EventManager &ev) {
+    ev.subscribe<GameResetEvent>(*this);
+    ev.subscribe<EntityRemovedEvent>(*this);
   }
 
 private:
-  unsigned int m_score = 0;
-  unsigned int m_highscore = 0;
+  uint m_score = 0;
+  uint m_highscore = 0;
 };
 
 /**
@@ -205,18 +236,4 @@ class LineSystem : public GalaxianSystem<LineSystem> {
 public:
   DEFINE_SYSTEM(LineSystem)
   void update(EntityManager &es, EventManager &ev, TimeDelta dt) override;
-};
-
-/**
- * @brief The DebugSystem class
- */
-class DebugSystem : public GalaxianSystem<DebugSystem> {
-public:
-  DEFINE_SYSTEM(DebugSystem)
-  void update(EntityManager &es, EventManager &ev, TimeDelta dt) override;
-
-private:
-  float m_fpsTimer = 0;
-  unsigned int m_fps = 0;
-  std::string m_fpsStr;
 };

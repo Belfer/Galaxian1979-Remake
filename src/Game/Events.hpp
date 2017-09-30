@@ -1,6 +1,7 @@
 #pragma once
 
-#include <Application.h>
+#include "Components.hpp"
+#include "Framework/Application.h"
 #include <entityx/entityx.h>
 #include <glm/glm.hpp>
 
@@ -22,8 +23,18 @@ struct EntityRemovedEvent {
 struct GameResetEvent {};
 
 struct ExplosionEvent {
-  ExplosionEvent(const vec2 &pos) : pos(pos) {}
-  const vec2 pos;
+  ExplosionEvent(const vec3 &pos) : pos(pos) {}
+  const vec3 pos;
 };
 
 struct PlayerKilledEvent {};
+
+struct PowerEnableEvent {
+  PowerEnableEvent(PowerCmp::PowerUp power) : power(power) {}
+  const PowerCmp::PowerUp power;
+};
+
+struct PowerDisableEvent {
+  PowerDisableEvent(PowerCmp::PowerUp power) : power(power) {}
+  const PowerCmp::PowerUp power;
+};
