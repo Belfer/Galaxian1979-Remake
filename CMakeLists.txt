@@ -18,14 +18,14 @@ include_directories(
 add_library(Framework ${FRAMEWORK_SRCS} ${FRAMEWORK_HDRS})
 add_library(Game ${GAME_SRCS} ${GAME_HDRS})
 
-if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
   add_executable(${PROJECT_NAME} src/Game/main.cpp)
   target_link_libraries(${PROJECT_NAME}
     Framework
     Game
     ${DEPENDENCIES_LIBS}
   )
-elseif(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_library(Editor ${EDITOR_SRCS} ${EDITOR_HDRS})
   add_executable(${PROJECT_NAME} src/Editor/main.cpp)
   target_link_libraries(${PROJECT_NAME}
@@ -34,4 +34,4 @@ elseif(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     Game
     ${DEPENDENCIES_LIBS}
   )
-endif(${CMAKE_BUILD_TYPE} STREQUAL "Release")
+endif(CMAKE_BUILD_TYPE STREQUAL "Release")

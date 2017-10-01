@@ -153,26 +153,27 @@ uint Utility::loadShaderFromBuffer(
   }
 
   /// This breaks core OpenGL compatibility, so we'll ignore it.
-//  if (tesSource != nullptr && tcsSource != nullptr) {
-//    tesHandle = glCreateShader(GL_TESS_EVALUATION_SHADER);
-//    tcsHandle = glCreateShader(GL_TESS_CONTROL_SHADER);
-//    // compile tessellation control shader and log errors
-//    if (!compileShader(tcsHandle, tcsSource)) {
-//      glGetShaderInfoLog(tcsHandle, sizeof(acLog), 0, acLog);
-//      std::cout << "Error: Failed to compile tessellation control shader!"
-//                << std::endl;
-//      std::cout << acLog << std::endl;
-//      return 0;
-//    }
-//    // compile tessellation evaluation shader and log errors
-//    if (!compileShader(tesHandle, tesSource)) {
-//      glGetShaderInfoLog(tesHandle, sizeof(acLog), 0, acLog);
-//      std::cout << "Error: Failed to compile tessellation evaluation shader!"
-//                << std::endl;
-//      std::cout << acLog << std::endl;
-//      return 0;
-//    }
-//  }
+  //  if (tesSource != nullptr && tcsSource != nullptr) {
+  //    tesHandle = glCreateShader(GL_TESS_EVALUATION_SHADER);
+  //    tcsHandle = glCreateShader(GL_TESS_CONTROL_SHADER);
+  //    // compile tessellation control shader and log errors
+  //    if (!compileShader(tcsHandle, tcsSource)) {
+  //      glGetShaderInfoLog(tcsHandle, sizeof(acLog), 0, acLog);
+  //      std::cout << "Error: Failed to compile tessellation control shader!"
+  //                << std::endl;
+  //      std::cout << acLog << std::endl;
+  //      return 0;
+  //    }
+  //    // compile tessellation evaluation shader and log errors
+  //    if (!compileShader(tesHandle, tesSource)) {
+  //      glGetShaderInfoLog(tesHandle, sizeof(acLog), 0, acLog);
+  //      std::cout << "Error: Failed to compile tessellation evaluation
+  //      shader!"
+  //                << std::endl;
+  //      std::cout << acLog << std::endl;
+  //      return 0;
+  //    }
+  //  }
   // create a shader program and attach the shaders to it
   uint uiProgramHandle = glCreateProgram();
   glAttachShader(uiProgramHandle, vsHandle);

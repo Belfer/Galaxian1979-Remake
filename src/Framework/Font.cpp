@@ -117,7 +117,7 @@ bool Font::LoadFont(const char *pszFontName) {
 
     for (auto &e : kernings["kerning"]) {
       int first, second, amount;
-      //m_KerningTable[first - m_KerningFirst][second] = amount;
+      // m_KerningTable[first - m_KerningFirst][second] = amount;
     }
   }
 

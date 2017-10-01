@@ -15,58 +15,61 @@ void GalaxianApp::receive(const GameResetEvent &e) {
 
 void GalaxianApp::receive(const ExplosionEvent &e) {
   m_time = 0;
-  SetPositionPostFxVar(vec4(e.pos.x / 512.f, 1 - (e.pos.y / 1024.f), 0, 0));
+  int screenWidth;
+  int screenHeight;
+  GetScreenSize(screenWidth, screenHeight);
+  SetPositionPostFxVar(
+      vec4(e.pos.x / screenWidth, 1 - (e.pos.y / screenHeight), 0, 0));
 }
 
 bool GalaxianApp::onCreate(int argc, char **argv) {
-  srand(time(NULL));
-
   // Load resources
-  SetPostProcessFx((Config::g_ResourcesPath + "/shaders/postpass.fsh").c_str());
-  SetColorPostFxVar(vec4(1, 1, 1, 1));
-
-  setBackgroundColor(SColour(0x0C, 0x0C, 0x0C, 0xFF));
-
-  GVars::load(*this);
-
-  // Configure event receiversr
-  configure(events);
+  load();
 
   // Add systems
   addSystems();
-  systems.configure();
 
   // Reset level
   events.emit<GameResetEvent>();
   return true;
 }
 
-void GalaxianApp::onUpdate(float deltaTime) {
+void GalaxianApp::onUpdate(float dt) {
   // Quit app when escape is pressed
   if (IsKeyDown(KEY_ESCAPE))
     destroy();
 
+  m_time += dt;
   if (m_paused)
-    m_timeDilation = Lerp(m_timeDilation, 0.f, 0.1f);
+    m_timeScale = Lerp(m_timeScale, 0.f, 0.1f);
   else if (m_slowmo)
-    m_timeDilation = Lerp(m_timeDilation, SLOWMO_TD, 0.05f);
+    m_timeScale = Lerp(m_timeScale, SLOWMO_TD, 0.05f);
   else
-    m_timeDilation = Lerp(m_timeDilation, 1.f, 0.1f);
+    m_timeScale = Lerp(m_timeScale, 1.f, 0.1f);
 
+  SetTimePostFxVar(m_time);
+  SetTimeScale(m_timeScale);
   SetPostProcessEnabled(m_postproc);
   SetTimePostFxVar(m_time);
 
+  // Update cameras
+  int screenWidth;
+  int screenHeight;
+  GetScreenSize(screenWidth, screenHeight);
+
+  for (auto &camera : GetCameras()) {
+    camera.second.orthographic(0.f, (float)screenWidth, 0.f,
+                               (float)screenHeight, 0.01f, 1000.f);
+  }
+
   // Update logic systems
-  const float dt = deltaTime * m_timeDilation;
-  m_time += dt;
   updateSystems(dt);
 }
 
-void GalaxianApp::onDraw() {
-  clearScreen();
+void GalaxianApp::onDraw(float dt) {
+  ClearScreen();
 
   // Update render systems
-  const float dt = GetDeltaTime() * m_timeDilation;
   renderSystems(dt);
 }
 
@@ -77,9 +80,22 @@ void GalaxianApp::onDestroy() {
   GVars::unload(*this);
 }
 
+void GalaxianApp::load() {
+  srand(time(NULL));
+
+  // Load resources
+  SetPostProcessFx((Config::ResPath + "/shaders/postpass.fsh").c_str());
+  SetColorPostFxVar(vec4(1, 1, 1, 1));
+
+  SetBackgroundColor(SColour(0x0C, 0x0C, 0x0C, 0xFF));
+
+  GVars::load(*this);
+}
+
 void GalaxianApp::addSystems() {
   // Add systems
   systems.add<HealthSystem>(*this, entities, events, systems);
+  systems.add<CameraSystem>(*this, entities, events, systems);
   systems.add<PhysicsSystem>(*this, entities, events, systems);
   systems.add<CollisionSystem>(*this, entities, events, systems);
   systems.add<PlayerSystem>(*this, entities, events, systems);
@@ -93,11 +109,13 @@ void GalaxianApp::addSystems() {
   systems.add<SpriteSystem>(*this, entities, events, systems);
   systems.add<TextSystem>(*this, entities, events, systems);
   systems.add<LineSystem>(*this, entities, events, systems);
+  systems.configure();
 }
 
 void GalaxianApp::updateSystems(float dt) {
   // Update logic systems
   systems.update<HealthSystem>(dt);
+  systems.update<CameraSystem>(dt);
   systems.update<PhysicsSystem>(dt);
   systems.update<CollisionSystem>(dt);
   systems.update<PlayerSystem>(dt);

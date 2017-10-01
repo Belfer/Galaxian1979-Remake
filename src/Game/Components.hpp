@@ -53,15 +53,15 @@ struct ParticleCmp {
   enum Mode { LOOP, ONCE };
 
   struct Particle;
-  using ResetFn = std::function<void(Particle &)>;
+  using ResetFn = std::function<void(Application &, Particle &)>;
   using UpdateFn = std::function<void(float, float, std::vector<Particle> &)>;
 
-  ParticleCmp(Mode mode, float maxLife, ResetFn resetFn, UpdateFn updateFn,
-              size_t size)
+  ParticleCmp(Application &app, Mode mode, float maxLife, ResetFn resetFn,
+              UpdateFn updateFn, size_t size)
       : mode(mode), maxLife(maxLife), resetFn(resetFn), updateFn(updateFn) {
     particles.resize(size);
     for (auto &p : particles) {
-      resetFn(p);
+      resetFn(app, p);
     }
   }
 

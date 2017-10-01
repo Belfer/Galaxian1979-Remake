@@ -17,7 +17,7 @@ namespace NHTV {
 bool Application::create(int a_argc, char *a_argv[]) {
   if (a_argc < 2)
     assert(false && "Please specify resource path!");
-  Config::g_ResourcesPath = std::string(a_argv[1]);
+  Config::ResPath = std::string(a_argv[1]);
 
 #pragma region CreateGLFWWindow
   // Load the application data from our appData.xml
@@ -119,8 +119,8 @@ bool Application::create(int a_argc, char *a_argv[]) {
   const char *aszOutputs[] = {"vUV", "vColour"};
   m_ShaderID = NHTV::Utility::loadShaderFromFile(
       3, aszInputs, 2, aszOutputs,
-      (Config::g_ResourcesPath + "/shaders/default.vsh").c_str(),
-      (Config::g_ResourcesPath + "/shaders/default.fsh").c_str());
+      (Config::ResPath + "/shaders/default.vsh").c_str(),
+      (Config::ResPath + "/shaders/default.fsh").c_str());
 
   // set the texture to use slot 0 in the shader
   GLuint texUniformID = glGetUniformLocation(m_ShaderID, "diffuseTexture");
@@ -135,7 +135,7 @@ bool Application::create(int a_argc, char *a_argv[]) {
   // start our timer
   NHTV::Utility::resetTimer();
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  m_fDeltaTime = NHTV::Utility::tickTimer();
+  m_fDeltaTime = NHTV::Utility::tickTimer() * m_fTimeScale;
 
   // Now call our overridden onCreate function to set up application specifics
   bool result = onCreate(a_argc, a_argv);
@@ -152,12 +152,12 @@ void Application::run() {
   m_running = true;
   do {
     glfwPollEvents();
-    float fDeltaTime = NHTV::Utility::tickTimer();
+    m_fDeltaTime = NHTV::Utility::tickTimer() * m_fTimeScale;
     double mX;
     double mY;
     GetMousePos(mX, mY);
 
-    onUpdate(fDeltaTime);
+    onUpdate(m_fDeltaTime);
 
     int iScreenWidth = 0, iScreenHeight = 0;
     GetScreenSize(iScreenWidth, iScreenHeight);
@@ -165,16 +165,20 @@ void Application::run() {
 
     if (m_postProcess) {
       glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer);
+      glBindTexture(GL_TEXTURE_2D, m_renderTarget);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, iScreenWidth, iScreenHeight, 0,
+                   GL_RGB, GL_UNSIGNED_BYTE, 0);
+      glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    onDraw();
+    onDraw(m_fDeltaTime);
 
     // set active shader
     glUseProgram(m_ShaderID);
     glEnable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
 
-    for (auto camera : m_cameras) {
+    for (auto &camera : m_cameras) {
       camera.second.update();
 
       // set current transforms in the shader
@@ -220,11 +224,23 @@ void Application::run() {
 
       // Set our "renderedTexture" sampler to use Texture Unit 0
       GLuint texID = glGetUniformLocation(m_postFxShader, "renderTarget");
+      GLuint resolutionID = glGetUniformLocation(m_postFxShader, "resolution");
+      GLuint bloomKID = glGetUniformLocation(m_postFxShader, "bloomK");
+      GLuint waveParamsID = glGetUniformLocation(m_postFxShader, "waveParams");
       GLuint timeID = glGetUniformLocation(m_postFxShader, "time");
       GLuint colorID = glGetUniformLocation(m_postFxShader, "color");
       GLuint posID = glGetUniformLocation(m_postFxShader, "position");
       GLuint offID = glGetUniformLocation(m_postFxShader, "offset");
       glUniform1i(texID, 0);
+      glUniform2fv(
+          resolutionID, 1,
+          glm::value_ptr(glm::vec2(1.f / iScreenWidth, 1.f / iScreenHeight)));
+
+      if (m_fxBloomK <= 0)
+        m_fxBloomK = 0.001f;
+      glUniform1f(bloomKID, m_fxBloomK);
+      glUniform4fv(waveParamsID, 1, glm::value_ptr(m_fxWaveParams));
+
       glUniform1f(timeID, m_fxTime);
       glUniform4fv(colorID, 1, glm::value_ptr(m_fxColor));
       glUniform4fv(posID, 1, glm::value_ptr(m_fxPosition));
@@ -249,7 +265,7 @@ void Application::run() {
 }
 
 bool Application::loadApplicationData() {
-  std::ifstream ifs(Config::g_ResourcesPath + "/appData.json", std::ios::in);
+  std::ifstream ifs(Config::ResPath + "/appData.json", std::ios::in);
   std::string res = "";
 
   if (!ifs.is_open()) {
@@ -282,14 +298,14 @@ void Application::GetScreenSize(int &a_iWidth, int &a_iHeight) const {
 //////////////////////////////////////////////////////////////////////////
 // Does what it says on the tin clears the render buffer or screen
 //////////////////////////////////////////////////////////////////////////
-void Application::clearScreen() {
+void Application::ClearScreen() {
   m_pLineRenderer->clear();
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 //////////////////////////////////////////////////////////////////////////////
 // Changes the background colour of the render window
 //////////////////////////////////////////////////////////////////////////////
-void Application::setBackgroundColor(SColour a_bgColor) {
+void Application::SetBackgroundColor(SColour a_bgColor) {
   glm::vec4 bgColor = glm::vec4(
       a_bgColor.argb.colours.r / 255.f, a_bgColor.argb.colours.g / 255.f,
       a_bgColor.argb.colours.b / 255.f, a_bgColor.argb.colours.a / 255.f);
@@ -574,8 +590,7 @@ void Application::SetPostProcessFx(const char *a_pShaderName) {
   const char *pfxOutputs[] = {"vUV"};
   m_postFxShader = NHTV::Utility::loadShaderFromFile(
       1, pfxInputs, 1, pfxOutputs,
-      (Config::g_ResourcesPath + "/shaders/fullpass.vsh").c_str(),
-      a_pShaderName);
+      (Config::ResPath + "/shaders/fullpass.vsh").c_str(), a_pShaderName);
   m_postProcess = true;
 }
 #pragma endregion

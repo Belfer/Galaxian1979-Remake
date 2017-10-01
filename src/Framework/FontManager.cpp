@@ -36,7 +36,8 @@ void FontManager::DestroyInstance() { delete m_pInstance; }
 FontManager::FontManager() {
   m_m4ModelView = glm::mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
-  m_pDebugFont = new Font((Config::g_ResourcesPath + "/fonts/arial.json.fnt").c_str());
+  m_pDebugFont =
+      new Font((Config::ResPath + "/fonts/arial.json.fnt").c_str());
   m_pCurrentFont = m_pDebugFont;
 
   FontBlock *nextRQFont = new FontBlock();

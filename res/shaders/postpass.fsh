@@ -4,32 +4,33 @@ in vec2 vUV;
 out vec4 outColour;
 
 uniform sampler2D renderTarget;
+uniform vec2 resolution;
 uniform float time;
+uniform float bloomK;
+uniform vec4 waveParams = vec4(10.0, 0.6, 0.02, 1.0);
 uniform vec4 color;
 uniform vec4 position;
 uniform vec4 offset;
 
-const float blurSizeH = 1.0 / 300.0;
-const float blurSizeV = 1.0 / 400.0;
 const int it = 4;
-const float k = 81.0;
-
-const vec3 shockParams = vec3(10.0, 0.6, 0.02);
 
 void main()
 {
     // Calculate shock wave UVs
     vec2 texCoord = vUV;
     vec2 center = position.xy;
-    float distance = distance(vUV, center);
-    if ((distance <= (time + shockParams.z)) &&
-        (distance >= (time - shockParams.z))) {
+    vec2 dir = vUV - center;
+    
+    float dist = length(dir);
+    if ((dist <= (time + waveParams.z)) &&
+        (dist >= (time - waveParams.z)) ) {
+        float diff = (dist - time) * waveParams.w;
+        float diff3 = pow(diff, 3);
         
-        float diff = (distance - time);
-        float powDiff = 1.0 - pow(abs(diff * shockParams.x), shockParams.y);
-        float diffTime = diff  * powDiff;
-        vec2 diffUV = normalize(vUV - center);
-        texCoord = vUV + (diffUV * diffTime);
+        float offset = diff3 * (1.0 - pow(abs(diff3 * waveParams.x), waveParams.y));
+        dir = normalize(dir);
+        
+        texCoord = vUV + (dir * offset);
     }
     
     // Chromatic aberration
@@ -43,7 +44,9 @@ void main()
     vec4 sum = vec4(0);
     for (int x = -it; x <= it; x++)
         for (int y = -it; y <= it; y++)
-            sum += texture(renderTarget, vec2(texCoord.x + x * blurSizeH, texCoord.y + y * blurSizeV)) / k;
+            sum += texture2D(renderTarget,
+                           vec2(texCoord.x + x * resolution.x,
+                                texCoord.y + y * resolution.y)) / bloomK;
     vec4 bloom = sum + texture2D(renderTarget, texCoord);
     
     outColour = bloom * color;

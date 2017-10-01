@@ -30,25 +30,25 @@ uint powerShieldSpr;
 uint shieldSpr;
 
 void load(Application &app) {
-  app.AddFont((Config::g_ResourcesPath + "/fonts/invaders.json").c_str());
+  app.AddFont((Config::ResPath + "/fonts/invaders.json").c_str());
 
-  bulletSpr =
-      app.CreateSprite((Config::g_ResourcesPath + "/images/bullet.png").c_str(), 16, 16, true);
+  bulletSpr = app.CreateSprite(
+      (Config::ResPath + "/images/bullet.png").c_str(), 16, 16, true);
 
-  playerSpr =
-      app.CreateSprite((Config::g_ResourcesPath + "/images/cannon.png").c_str(), 32, 32, true);
+  playerSpr = app.CreateSprite(
+      (Config::ResPath + "/images/cannon.png").c_str(), 32, 32, true);
 
-  enemySpr =
-      app.CreateSprite((Config::g_ResourcesPath + "/images/invader.png").c_str(), 32, 32, true);
+  enemySpr = app.CreateSprite(
+      (Config::ResPath + "/images/invader.png").c_str(), 32, 32, true);
 
   powerShieldSpr = app.CreateSprite(
-      (Config::g_ResourcesPath + "/images/powup_shield.png").c_str(), 24, 24, true);
-  shieldSpr =
-      app.CreateSprite((Config::g_ResourcesPath + "/images/shield2.png").c_str(), 32, 32, true);
+      (Config::ResPath + "/images/powup_shield.png").c_str(), 24, 24, true);
+  shieldSpr = app.CreateSprite(
+      (Config::ResPath + "/images/shield2.png").c_str(), 32, 32, true);
 }
 
 void unload(Application &app) {
-  app.RemoveFont((Config::g_ResourcesPath + "/fonts/invaders.fnt").c_str());
+  app.RemoveFont((Config::ResPath + "/fonts/invaders.fnt").c_str());
   app.DestroySprite(bulletSpr);
   app.DestroySprite(playerSpr);
   app.DestroySprite(enemySpr);
@@ -57,8 +57,8 @@ void unload(Application &app) {
 
 namespace Factory {
 
-Entity newCamera(EntityManager &entityMgr, const vec3 &pos,
-                          const quat &rot, Application &app) {
+Entity newCamera(EntityManager &entityMgr, const vec3 &pos, const quat &rot,
+                 Application &app) {
   auto e = entityMgr.create();
   e.assign<TransformCmp>(pos, vec3(1, 1, 1), rot);
   auto &camera = app.CreateCamera();
@@ -66,13 +66,13 @@ Entity newCamera(EntityManager &entityMgr, const vec3 &pos,
   return e;
 }
 
-Entity newParticle(EntityManager &entityMgr, const vec3 &pos,
+Entity newParticle(EntityManager &entityMgr, Application &app, const vec3 &pos,
                    ParticleCmp::Mode mode, float maxLife,
                    ParticleCmp::ResetFn resetFn, ParticleCmp::UpdateFn updateFn,
                    size_t size) {
   auto e = entityMgr.create();
   e.assign<TransformCmp>(pos, vec3(1, 1, 1), quat());
-  e.assign<ParticleCmp>(mode, maxLife, resetFn, updateFn, size);
+  e.assign<ParticleCmp>(app, mode, maxLife, resetFn, updateFn, size);
   return e;
 }
 

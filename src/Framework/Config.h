@@ -3,5 +3,5 @@
 #include <string>
 
 namespace Config {
-extern std::string g_ResourcesPath;
+extern std::string ResPath;
 }

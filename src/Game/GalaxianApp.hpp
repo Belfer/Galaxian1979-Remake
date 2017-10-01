@@ -19,22 +19,26 @@ class GalaxianApp : public Application,
 protected:
   virtual bool onCreate(int argc, char **argv);
   virtual void onUpdate(float dt);
-  virtual void onDraw();
+  virtual void onDraw(float dt);
   virtual void onEditor();
   virtual void onDestroy();
 
-  void addSystems();
-  void updateSystems(float dt);
-  void renderSystems(float dt);
+  virtual void load();
+  virtual void addSystems();
+  virtual void updateSystems(float dt);
+  virtual void renderSystems(float dt);
 
-  float m_timeDilation = 1.f;
+  float m_timeScale = 1.f;
   float m_time = 0;
   bool m_paused = false;
   bool m_slowmo = false;
   bool m_postproc = true;
 
 public:
-  inline void setTimeDialation(float td) { m_timeDilation = td; }
+  GalaxianApp() {
+    // Configure event receiversr
+    configure(events);
+  }
 
   void configure(EventManager &es) {
     es.subscribe<PlayerKilledEvent>(*this);

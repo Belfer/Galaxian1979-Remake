@@ -1,6 +1,6 @@
 #include "Systems.hpp"
-#include "Components.hpp"
-#include "Factory.hpp"
+#include "Game/Components.hpp"
+#include "Game/Factory.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/projection.hpp>
 
@@ -92,8 +92,8 @@ void CollisionSystem::update(EntityManager &es, EventManager &ev,
  * @brief EntitySpawnerSystem
  */
 void SpawnSystem::receive(const ExplosionEvent &e) {
-  Factory::newParticle(m_entities, e.pos, ParticleCmp::ONCE, 0,
-                       [](ParticleCmp::Particle &p) {
+  Factory::newParticle(m_entities, m_app, e.pos, ParticleCmp::ONCE, 0,
+                       [](Application &app, ParticleCmp::Particle &p) {
                          p.pos.first = vec3();
                          p.pos.second = p.pos.first;
                          const float th = (rand() % 360) * DEG2RAD;
@@ -143,16 +143,22 @@ void SpawnSystem::receive(const GameResetEvent &e) {
   int screenHeight;
   m_app.GetScreenSize(screenWidth, screenHeight);
 
-  auto camera = Factory::newCamera(m_entities, vec3(0, 0, 1), quat(), m_app);
-  camera.component<CameraCmp>()->camera.orthographic(
-      0.f, (float)screenWidth, 0.f, (float)screenHeight, 0.01f, 1000.f);
+  auto camEnt =
+      Factory::newCamera(m_entities, vec3(0, 0, 1), quat(), m_app);
+  auto camera = camEnt.component<CameraCmp>()->camera;
+  camera.orthographic(0.f, (float)screenWidth, 0.f, (float)screenHeight, 0.01f,
+                      1000.f);
 
   // Spawn bg particles
-  Factory::newParticle(m_entities,
+  Factory::newParticle(m_entities, m_app,
                        vec3(screenWidth * 0.5f, screenHeight * 0.5f, 0),
                        ParticleCmp::LOOP, 0,
-                       [](ParticleCmp::Particle &p) {
-                         p.pos.first = vec3((rand() % 512) - 256, 768, 0);
+                       [](Application &app, ParticleCmp::Particle &p) {
+                         int sw, sh;
+                         app.GetScreenSize(sw, sh);
+                         p.pos.first = vec3((rand() % sw) - sw * 0.5f, sh, 0);
+                         // std::cout << p.pos.first.x << ", " << p.pos.first.y
+                         // << "\n";
                          p.pos.second = p.pos.first;
                          p.vel = vec3(0, -(rand() % 1000), 0);
                          p.color = 0xFFFFFFFF;
@@ -576,7 +582,7 @@ void ParticleSystem::update(EntityManager &es, EventManager &ev, TimeDelta dt) {
           p.life -= dt;
           if (p.life <= 0) {
             if (psc.mode == ParticleCmp::LOOP)
-              psc.resetFn(p);
+              psc.resetFn(m_app, p);
           } else {
             allDead = false;
           }

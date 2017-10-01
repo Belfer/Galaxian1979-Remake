@@ -71,7 +71,7 @@ protected:
   // To be implemented in a child class of our application
   virtual bool onCreate(int a_argc, char *a_argv[]) = 0;
   virtual void onUpdate(float a_deltaTime) = 0;
-  virtual void onDraw() = 0;
+  virtual void onDraw(float a_deltaTime) = 0;
   virtual void onEditor() = 0;
   virtual void onDestroy() = 0;
 
@@ -80,8 +80,8 @@ protected:
 public:
   // Functionality that we need in our base application
   void GetScreenSize(int &a_iWidth, int &a_iHeight) const;
-  void clearScreen();
-  void setBackgroundColor(SColour a_bgColor);
+  void ClearScreen();
+  void SetBackgroundColor(SColour a_bgColor);
 
 #pragma region Line Drawing functionality
 
@@ -342,6 +342,8 @@ public:
     }
   }
 
+  inline std::vector<CameraHandle> &GetCameras() { return m_cameras; }
+
   inline void ClearCameras() { m_cameras.clear(); }
 #pragma endregion
 
@@ -349,6 +351,10 @@ public:
   inline void SetPostProcessEnabled(bool enabled) { m_postProcess = enabled; }
 
   inline void SetTimePostFxVar(float time) { m_fxTime = time; }
+
+  inline void SetBloomKPostFxVar(float bloomK) { m_fxBloomK = bloomK; }
+
+  inline void SetWaveParamsPostFxVar(const glm::vec4 &params) { m_fxWaveParams = params; }
 
   inline void SetColorPostFxVar(const glm::vec4 &color) { m_fxColor = color; }
 
@@ -365,6 +371,10 @@ public:
   /// last polled.
   //////////////////////////////////////////////////////////////////////////
   float GetDeltaTime();
+
+  float GetTimeScale() const { return m_fTimeScale; }
+
+  void SetTimeScale(float timeScale) { m_fTimeScale = timeScale; }
 
 private:
   // For the naming and creation of our application window
@@ -395,9 +405,11 @@ private:
   bool m_postProcess = true;
   GLuint m_postFxShader = 0;
   float m_fxTime = 0;
-  glm::vec4 m_fxColor;
-  glm::vec4 m_fxPosition;
-  glm::vec4 m_fxOffset;
+  float m_fxBloomK = 81.0f;
+  glm::vec4 m_fxWaveParams = glm::vec4(10.f, 0.6f, 0.02f, 1.f);
+  glm::vec4 m_fxColor = glm::vec4(1.f, 1.f, 1.f, 1.f);
+  glm::vec4 m_fxPosition = glm::vec4(0.f, 0.f, 0.f, 0.f);
+  glm::vec4 m_fxOffset = glm::vec4(0.f, 0.f, 0.f, 0.f);
 
   GLenum m_drawBuffers[1] = {GL_COLOR_ATTACHMENT0};
 
@@ -413,6 +425,7 @@ private:
 
   LineRenderer *m_pLineRenderer;
 
+  float m_fTimeScale = 1.f;
   float m_fDeltaTime;
 };
 

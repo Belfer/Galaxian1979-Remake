@@ -63,7 +63,7 @@ Entity newCamera(EntityManager &entityMgr, const vec3 &pos, const quat &rot,
  * @param size
  * @return
  */
-Entity newParticle(EntityManager &entityMgr, const vec3 &pos,
+Entity newParticle(EntityManager &entityMgr, Application &app, const vec3 &pos,
                    ParticleCmp::Mode mode, float maxLife,
                    ParticleCmp::ResetFn resetFn, ParticleCmp::UpdateFn updateFn,
                    size_t size);
