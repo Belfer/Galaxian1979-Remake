@@ -28,10 +28,10 @@ void DebugSystem::update(EntityManager &es, EventManager &ev, TimeDelta dt) {
   m_app.GetScreenSize(screenWidth, screenHeight);
 
   // Draw grid
-  float w = screenWidth / 16.f;
+  float w = screenWidth / 32.f;
   float h = screenHeight / 32.f;
   const uint gridCol = 0x202020FF;
-  for (uint i = 0; i < 16; ++i) {
+  for (uint i = 0; i < 32; ++i) {
     m_app.DrawLine(i * w, 0, i * w, screenHeight, gridCol);
 
     for (uint j = 0; j < 32; ++j) {

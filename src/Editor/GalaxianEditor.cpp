@@ -133,15 +133,18 @@ void GalaxianEditor::onEditor() {
     ImGui::InputFloat("Time", &m_time, 0.1f, 1.0f, 2);
     ImGui::SliderFloat("Time Scale", &m_timeScale, -1.0f, 2.0f);
 
-    ImGui::Text("- Post-Processing -");
-    ImGui::Checkbox("Post-Processing", &m_postproc);
-    ImGui::InputFloat("Bloom", &m_bloomK, 0.5f, 2.0f, 2);
-    if (m_bloomK <= 0)
-      m_bloomK = 0.001f;
-    ImGui::InputFloat("Wave Params X", &m_waveParams.x, 0.5f, 2.0f, 2);
-    ImGui::InputFloat("Wave Params Y", &m_waveParams.y, 0.01f, 0.1f, 2);
-    ImGui::InputFloat("Wave Params Z", &m_waveParams.z, 0.01f, 0.1f, 2);
-    ImGui::InputFloat("Wave Params W", &m_waveParams.w, 0.5f, 2.0f, 2);
+    ImGui::Checkbox(" - Post-Processing - ", &m_postproc);
+    if (m_postproc) {
+      ImGui::Text("- Bloom -");
+      ImGui::InputFloat("BloomK", &m_bloomK, 0.5f, 2.0f, 2);
+      if (m_bloomK <= 0)
+        m_bloomK = 0.001f;
+      ImGui::Text("- Show Wave -");
+      ImGui::InputFloat("Wave Params X", &m_waveParams.x, 0.5f, 2.0f, 2);
+      ImGui::InputFloat("Wave Params Y", &m_waveParams.y, 0.01f, 0.1f, 2);
+      ImGui::InputFloat("Wave Params Z", &m_waveParams.z, 0.01f, 0.1f, 2);
+      ImGui::InputFloat("Wave Params W", &m_waveParams.w, 0.5f, 2.0f, 2);
+    }
 
     if (ImGui::Button("Reset", ImVec2(50, 20)))
       events.emit<GameResetEvent>();
