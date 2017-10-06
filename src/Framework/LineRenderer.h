@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include "Utilities.h"
 
 namespace NHTV {
 class LineRenderer {

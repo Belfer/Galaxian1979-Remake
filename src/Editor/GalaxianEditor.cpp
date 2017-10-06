@@ -7,12 +7,16 @@
 #include <glm/ext.hpp>
 #include <imgui.h>
 
+#define PROJECT_DIR @PROJECT_DIR@
+
 void GalaxianEditor::receive(const GameResetEvent &e) {
   ClearCameras();
   m_slowmo = false;
 }
 
 bool GalaxianEditor::onCreate(int argc, char **argv) {
+  //std::cout << PROJECT_DIR << "\n";
+
   // Setup ImGui binding
   ImGui_ImplGlfwGL3_Init(GetWindowHandle().glfwWindowHandle, true);
 
@@ -42,8 +46,8 @@ void GalaxianEditor::onUpdate(float dt) {
       m_timeScale = Lerp(m_timeScale, 1.f, 0.1f);
   }
 
-  SetTimePostFxVar(m_time);
   SetTimeScale(m_timeScale);
+  SetTimePostFxVar(m_time);
   SetPostProcessEnabled(m_postproc);
   SetBloomKPostFxVar(m_bloomK);
   SetWaveParamsPostFxVar(m_waveParams);

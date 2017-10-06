@@ -7,6 +7,7 @@
 
 #include <glad/glad.h>
 
+#include "Utilities.h"
 #include <GLFW/glfw3.h>
 #include <glm/ext.hpp>
 #include <glm/glm.hpp>
