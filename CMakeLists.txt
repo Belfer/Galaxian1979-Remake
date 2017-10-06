@@ -7,6 +7,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
 # set(BUILD_EDITOR TRUE CACHE BOOL "Enable building of editor.")
 # set(CMAKE_BUILD_TYPE Debug)
 
+add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
 add_subdirectory(extern)
 add_subdirectory(src)
 

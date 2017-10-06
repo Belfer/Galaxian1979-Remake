@@ -1,7 +1,7 @@
 #include <glad/glad.h>
 
 #include <GLFW/glfw3.h>
-#include <SOIL/SOIL.h>
+#include <SOIL.h>
 #include <glm/ext.hpp>
 #include <iostream>
 #include <stdio.h>

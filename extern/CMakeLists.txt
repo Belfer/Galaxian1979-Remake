@@ -22,6 +22,7 @@ add_subdirectory(imgui)
 set(DEPENDENCIES_INCLUDE
   ${CMAKE_CURRENT_SOURCE_DIR}/glad/include
   ${CMAKE_CURRENT_SOURCE_DIR}/glfw/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/glm
   ${CMAKE_CURRENT_SOURCE_DIR}/soil/src
   ${CMAKE_CURRENT_SOURCE_DIR}/json/src
   ${CMAKE_CURRENT_SOURCE_DIR}/entityx
