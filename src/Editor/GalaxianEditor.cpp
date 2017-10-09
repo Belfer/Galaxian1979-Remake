@@ -1,5 +1,27 @@
 #include "GalaxianEditor.hpp"
-#include "Framework/Config.h"
+
+bool GalaxianEditor::create(int argc, char **args) {
+  //
+}
+
+void GalaxianEditor::update(float dt) {
+  //
+}
+
+void GalaxianEditor::draw(float dt) {
+  //
+}
+
+void GalaxianEditor::editor() {
+  //
+}
+
+void GalaxianEditor::destroy() {
+  //
+}
+
+/*#include "GalaxianEditor.hpp"
+#include "Framework/Config.hpp"
 #include "Game/Factory.hpp"
 #include "Systems.hpp"
 #include "imgui_impl.h"
@@ -7,15 +29,13 @@
 #include <glm/ext.hpp>
 #include <imgui.h>
 
-#define PROJECT_DIR @PROJECT_DIR@
-
 void GalaxianEditor::receive(const GameResetEvent &e) {
   ClearCameras();
   m_slowmo = false;
 }
 
 bool GalaxianEditor::onCreate(int argc, char **argv) {
-  //std::cout << PROJECT_DIR << "\n";
+  // std::cout << PROJECT_DIR << "\n";
 
   // Setup ImGui binding
   ImGui_ImplGlfwGL3_Init(GetWindowHandle().glfwWindowHandle, true);
@@ -86,8 +106,10 @@ void GalaxianEditor::onDraw(float dt) {
   renderSystems(dt);
 
   double mx, my;
+  int sx, sy;
+  GetScreenSize(sx, sy);
   GetMousePos(mx, my);
-  vec4 mPos = vec4(mx, 768 - my, 0, 1);
+  vec4 mPos = vec4(mx, sy - my, 0, 1);
   for (auto &camera : GetCameras()) {
     mPos = glm::inverse(camera.second.getView()) * mPos;
     DrawLine(mPos.x + 2, mPos.y + 2, mPos.x - 2, mPos.y - 2, 0xFFFFFFFF,
@@ -225,4 +247,4 @@ void GalaxianEditor::renderSystems(float dt) {
   updateProfileSys<LineSystem>(13, dt);
   if (m_debbuging)
     updateProfileSys<DebugSystem>(14, dt);
-}
+}*/

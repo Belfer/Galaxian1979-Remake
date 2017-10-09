@@ -1,12 +1,9 @@
-#include "Systems.hpp"
+/*#include "Systems.hpp"
 #include "Game/Components.hpp"
 #include "Game/Factory.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/projection.hpp>
 
-/**
- * @brief DebugSystem
- */
 void DebugSystem::update(EntityManager &es, EventManager &ev, TimeDelta dt) {
   es.each<TransformCmp, PhysicsCmp, ColliderCmp>(
       [=](Entity e, TransformCmp &trx, PhysicsCmp &phs, ColliderCmp &col) {
@@ -42,4 +39,4 @@ void DebugSystem::update(EntityManager &es, EventManager &ev, TimeDelta dt) {
   // m_app.SetFont("../resources/fonts/invaders.fnt");
   // m_app.DrawString(("FPS: " + m_fpsStr).c_str(), 5, 20, 0.5f);
   // m_app.SetFont(nullptr);
-}
+}*/

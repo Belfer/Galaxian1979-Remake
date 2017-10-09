@@ -26,6 +26,8 @@ void HealthSystem::update(EntityManager &es, EventManager &ev, TimeDelta dt) {
 void CameraSystem::update(EntityManager &es, EventManager &ev, TimeDelta dt) {
   es.each<TransformCmp, CameraCmp>(
       [&](Entity e, TransformCmp &trx, CameraCmp &cam) {
+        angle += 100 * (float)dt * NHTV::DEG2RAD;
+        trx.rot = glm::angleAxis(angle, vec3(0, 0, 1));
         cam.camera.position = trx.pos;
         cam.camera.rotation = trx.rot;
       });
@@ -143,8 +145,7 @@ void SpawnSystem::receive(const GameResetEvent &e) {
   int screenHeight;
   m_app.GetScreenSize(screenWidth, screenHeight);
 
-  auto camEnt =
-      Factory::newCamera(m_entities, vec3(0, 0, 1), quat(), m_app);
+  auto camEnt = Factory::newCamera(m_entities, vec3(0, 0, 1), quat(), m_app);
   auto camera = camEnt.component<CameraCmp>()->camera;
   camera.orthographic(0.f, (float)screenWidth, 0.f, (float)screenHeight, 0.01f,
                       1000.f);

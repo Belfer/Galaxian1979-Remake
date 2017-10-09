@@ -1,6 +1,19 @@
 #pragma once
 
-#include "Game/Events.hpp"
+#include "Framework/Engine.hpp"
+
+using namespace NHTV;
+
+class GalaxianEditor : public Application {
+protected:
+  virtual bool create(int argc, char **args) override;
+  virtual void update(float dt) override;
+  virtual void draw(float dt) override;
+  virtual void editor() override;
+  virtual void destroy() override;
+};
+
+/*#include "Game/Events.hpp"
 #include "Game/GalaxianApp.hpp"
 #include <entityx/entityx.h>
 
@@ -9,9 +22,6 @@ using namespace entityx;
 
 #define SLOWMO_TD 0.25f
 
-/**
- * @brief Derived application class that wraps up all globals neatly
- */
 class GalaxianEditor : public GalaxianApp {
 protected:
   virtual bool onCreate(int argc, char **argv) override;
@@ -59,4 +69,4 @@ protected:
 
 public:
   void receive(const GameResetEvent &e);
-};
+};*/

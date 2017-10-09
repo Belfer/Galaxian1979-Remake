@@ -48,6 +48,8 @@ class CameraSystem : public GalaxianSystem<CameraSystem> {
 public:
   DEFINE_SYSTEM(CameraSystem)
   void update(EntityManager &es, EventManager &ev, TimeDelta dt) override;
+
+  float angle = 0;
 };
 
 /**
