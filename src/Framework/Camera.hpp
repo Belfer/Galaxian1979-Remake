@@ -6,40 +6,15 @@
 
 using namespace glm;
 
+namespace NHTV {
 class Camera {
 public:
-  inline void perspective(float fovy, float aspect, float znear, float zfar) {
-    m_proj = glm::perspective(fovy, aspect, znear, zfar);
-    m_aspect = aspect;
-  }
+  void perspective(float fovy, float aspect, float znear, float zfar);
 
-  inline void orthographic(float left, float right, float bottom, float top,
-                           float znear, float zfar) {
-    m_proj = glm::ortho(left, right, bottom, top, znear, zfar);
-    m_aspect = abs((right - left) / (top - bottom));
-  }
+  void orthographic(float left, float right, float bottom, float top,
+                    float znear, float zfar);
 
-  inline void update() {
-    int swidth = 1024;
-    int sheight = 728;
-
-    float aspect = m_viewSize.x / m_viewSize.y;
-
-    int vw = swidth;
-    int vh = (int)(vw / aspect + .5f);
-
-    if (vh > sheight) {
-      vh = sheight;
-      vw = (int)(vh * aspect + .5f);
-    }
-
-    int vx = (swidth * .5f) - (vw * .5f);
-    int vy = (sheight * .5f) - (vh * .5f);
-
-    m_viewport = vec4(vx, vy, vw, vh);
-    m_view = translate(-position) * toMat4(conjugate(rotation));
-    m_viewProj = m_view * m_proj;
-  }
+  void update();
 
   inline bool isActive() const { return m_active; }
   inline void setActive(bool active) { m_active = active; }
@@ -65,3 +40,4 @@ private:
   mat4x4 m_proj = mat4x4(1);
   mat4x4 m_viewProj = mat4x4(1);
 };
+}

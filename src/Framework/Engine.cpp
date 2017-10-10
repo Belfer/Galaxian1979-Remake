@@ -1,5 +1,5 @@
 #include "Engine.hpp"
-#include "Config.hpp"
+#include "Global.hpp"
 #include "Util.hpp"
 #include "Window.hpp"
 #include <assert.h>
@@ -11,9 +11,9 @@ using json = nlohmann::json;
 int Engine::run(int argc, char **args, Application *app) {
   if (argc < 2)
     assert(false && "Resource path not specified!");
-  Config::ResPath = args[1];
+  Global::ResPath = args[1];
 
-  auto appData = json::parse(readFile(Config::ResPath + "/appData.json"));
+  auto appData = json::parse(readFile(Global::ResPath + "/appData.json"));
 
   WinConfig config;
   config.title = appData["title"];
@@ -24,7 +24,7 @@ int Engine::run(int argc, char **args, Application *app) {
 
   Window window(config);
 
-  app->create(argc, args);
+  app->init(argc, args);
   while (!window.shouldClose() && m_running) {
     window.pollEvents();
 
@@ -34,7 +34,7 @@ int Engine::run(int argc, char **args, Application *app) {
 
     window.display();
   }
-  app->destroy();
+  app->close();
 
   return 0;
 }

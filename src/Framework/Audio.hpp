@@ -1,3 +1,4 @@
+#ifdef AUDIO_LIB
 #pragma once
 
 #include <portaudio.h>
@@ -95,3 +96,4 @@ int run(int argc, const char **args) {
   return 0;
 }
 }
+#endif

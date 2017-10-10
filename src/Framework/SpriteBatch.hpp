@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Mesh.hpp"
 #include "NonCopyable.hpp"
 #include <glm/glm.hpp>
 #include <vector>
@@ -36,8 +37,6 @@ public:
 
 private:
   Renderer &m_renderer;
-
-  bool m_updated;
-  std::vector<Quad> m_quads;
+  Mesh<Vertex> m_mesh;
 };
 }

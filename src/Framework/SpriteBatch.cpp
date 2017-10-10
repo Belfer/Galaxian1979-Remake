@@ -5,40 +5,34 @@ using namespace NHTV;
 void genQuad(SpriteBatch::Quad &quad, const vec4 &rct, const vec4 &uvs,
              const vec4 &color, float z);
 
-void applyTrx(SpriteBatch::Vertex &v, const mat4x4 &trx);
+void applyTrx(SpriteBatch::Quad &quad, const mat4x4 &trx);
+
+void addQuadToMesh(Mesh<SpriteBatch::Vertex> &mesh,
+                   const SpriteBatch::Quad &quad);
 
 SpriteBatch::SpriteBatch(Renderer &renderer, size_t size)
     : m_renderer(renderer) {
-  m_quads.reserve(size);
-  m_updated = true;
+  MeshParams<Vertex> params;
+  m_mesh.configure(params);
 }
 
 void SpriteBatch::drawSprite(const vec4 &rct, const vec4 &uvs,
                              const vec4 &color, float z) {
-  m_updated = true;
-
   Quad quad;
   genQuad(quad, rct, uvs, color, z);
-  m_quads.emplace_back(quad);
+  addQuadToMesh(m_mesh, quad);
 }
 
 void SpriteBatch::drawSprite(const vec4 &rct, const vec4 &uvs,
                              const vec4 &color, float z, const mat4x4 &trx) {
-  m_updated = true;
-
   Quad quad;
   genQuad(quad, rct, uvs, color, z);
-  applyTrx(quad.v1, trx);
-  applyTrx(quad.v2, trx);
-  applyTrx(quad.v3, trx);
-  applyTrx(quad.v4, trx);
-  m_quads.emplace_back(quad);
+  applyTrx(quad, trx);
+  addQuadToMesh(m_mesh, quad);
 }
 
 void SpriteBatch::update() {
-  if (m_updated) {
-    m_updated = false;
-  }
+  //
 }
 
 void SpriteBatch::draw() {
@@ -76,6 +70,19 @@ void genQuad(SpriteBatch::Quad &quad, const vec4 &rct, const vec4 &uvs,
   quad.v4.color = color;
 }
 
-void applyTrx(SpriteBatch::Vertex &v, const mat4x4 &trx) {
-  v.position = trx * v.position;
+void applyTrx(SpriteBatch::Quad &quad, const mat4x4 &trx) {
+  quad.v1.position = trx * quad.v1.position;
+  quad.v2.position = trx * quad.v2.position;
+  quad.v3.position = trx * quad.v3.position;
+  quad.v4.position = trx * quad.v4.position;
+}
+
+void addQuadToMesh(Mesh<SpriteBatch::Vertex> &mesh,
+                   const SpriteBatch::Quad &quad) {
+  const uint i1 = mesh.addVertex(quad.v1);
+  const uint i2 = mesh.addVertex(quad.v2);
+  const uint i3 = mesh.addVertex(quad.v3);
+  const uint i4 = mesh.addVertex(quad.v4);
+  mesh.addTriangle(i1, i2, i3);
+  mesh.addTriangle(i3, i2, i4);
 }

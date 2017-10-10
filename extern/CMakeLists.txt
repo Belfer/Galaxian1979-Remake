@@ -18,7 +18,7 @@ add_subdirectory(json)
 add_subdirectory(glad)
 add_subdirectory(soil)
 add_subdirectory(imgui)
-add_subdirectory(portaudio)
+# add_subdirectory(portaudio)
 
 set(DEPENDENCIES_INCLUDE
   ${CMAKE_CURRENT_SOURCE_DIR}/glad/include
@@ -39,6 +39,6 @@ set(DEPENDENCIES_LIBS
   SOIL
   entityx
   imgui
-  portaudio_static
+  # portaudio_static
   PARENT_SCOPE
 )

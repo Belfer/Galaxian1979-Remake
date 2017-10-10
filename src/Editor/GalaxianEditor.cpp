@@ -1,7 +1,17 @@
 #include "GalaxianEditor.hpp"
+#include "Framework/Global.hpp"
+#include "Framework/Texture.hpp"
+#include <iostream>
 
-bool GalaxianEditor::create(int argc, char **args) {
-  //
+#include "Framework/Test.hpp"
+
+bool GalaxianEditor::init(int argc, char **args) {
+  // Texture texture;
+  // texture.load(Global::ResPath + "/images/invader.png", PixelChannel::RGBA);
+
+  Test test;
+
+  return true;
 }
 
 void GalaxianEditor::update(float dt) {
@@ -16,7 +26,7 @@ void GalaxianEditor::editor() {
   //
 }
 
-void GalaxianEditor::destroy() {
+void GalaxianEditor::close() {
   //
 }
 

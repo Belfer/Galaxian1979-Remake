@@ -6,11 +6,11 @@ using namespace NHTV;
 
 class GalaxianEditor : public Application {
 protected:
-  virtual bool create(int argc, char **args) override;
+  virtual bool init(int argc, char **args) override;
   virtual void update(float dt) override;
   virtual void draw(float dt) override;
   virtual void editor() override;
-  virtual void destroy() override;
+  virtual void close() override;
 };
 
 /*#include "Game/Events.hpp"

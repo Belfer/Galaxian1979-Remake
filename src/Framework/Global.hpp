@@ -2,6 +2,6 @@
 
 #include <string>
 
-namespace Config {
+namespace Global {
 extern std::string ResPath;
 }

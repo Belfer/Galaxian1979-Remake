@@ -5,37 +5,32 @@ using namespace NHTV;
 void genLine(LineBatch::Line &line, const vec3 &a, const vec3 &b,
              const vec4 &colA, const vec4 &colB);
 
-void applyTrx(LineBatch::Vertex &v, const mat4x4 &trx);
+void applyTrx(LineBatch::Line &line, const mat4x4 &trx);
+
+void addLineToMesh(Mesh<LineBatch::Vertex> &mesh, const LineBatch::Line &line);
 
 LineBatch::LineBatch(Renderer &renderer, size_t size) : m_renderer(renderer) {
-  m_lines.reserve(size);
-  m_updated = true;
+  MeshParams<Vertex> params;
+  m_mesh.configure(params);
 }
 
 void LineBatch::drawLine(const vec3 &a, const vec3 &b, const vec4 &colA,
                          const vec4 &colB) {
-  m_updated = true;
-
   Line line;
   genLine(line, a, b, colA, colB);
-  m_lines.emplace_back(line);
+  addLineToMesh(m_mesh, line);
 }
 
 void LineBatch::drawLine(const vec3 &a, const vec3 &b, const vec4 &colA,
                          const vec4 &colB, const mat4x4 &trx) {
-  m_updated = true;
-
   Line line;
   genLine(line, a, b, colA, colB);
-  applyTrx(line.v1, trx);
-  applyTrx(line.v2, trx);
-  m_lines.emplace_back(line);
+  applyTrx(line, trx);
+  addLineToMesh(m_mesh, line);
 }
 
 void LineBatch::update() {
-  if (m_updated) {
-    m_updated = false;
-  }
+  //
 }
 
 void LineBatch::draw() {
@@ -47,6 +42,12 @@ void genLine(LineBatch::Line &line, const vec3 &a, const vec3 &b,
   //
 }
 
-void applyTrx(LineBatch::Vertex &v, const mat4x4 &trx) {
-  v.position = trx * v.position;
+void applyTrx(LineBatch::Line &line, const mat4x4 &trx) {
+  line.v1.position = trx * line.v1.position;
+  line.v2.position = trx * line.v2.position;
+}
+
+void addLineToMesh(Mesh<LineBatch::Vertex> &mesh, const LineBatch::Line &line) {
+  mesh.addVertex(line.v1);
+  mesh.addVertex(line.v2);
 }
