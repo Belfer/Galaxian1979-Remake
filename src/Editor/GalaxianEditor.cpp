@@ -1,25 +1,67 @@
 #include "GalaxianEditor.hpp"
-#include "Framework/Global.hpp"
-#include "Framework/Texture.hpp"
+#include "Core/Global.hpp"
+#include <glm/glm.hpp>
 #include <iostream>
 
-#include "Framework/Test.hpp"
+using namespace glm;
+
+struct Vertex : public IVertex {
+  Vertex() {
+    totalSize = 8 * sizeof(float);
+    IVertex::Desc desc;
+    desc.size = IVertex::Desc::_4;
+    desc.type = IVertex::Desc::FLOAT;
+    desc.norm = false;
+
+    descList.emplace_back(desc);
+    descList.emplace_back(desc);
+  }
+
+  vec4 position;
+  vec4 color;
+
+  virtual void data(void *d) const {
+    float *fd = static_cast<float *>(d);
+    fd[0] = position.x;
+    fd[1] = position.y;
+    fd[2] = position.z;
+    fd[3] = position.w;
+    fd[4] = color.x;
+    fd[5] = color.y;
+    fd[6] = color.z;
+    fd[7] = color.w;
+  }
+};
 
 bool GalaxianEditor::init(int argc, char **args) {
-  // Texture texture;
-  // texture.load(Global::ResPath + "/images/invader.png", PixelChannel::RGBA);
+  texture.load(Global::ResPath + "/images/invader.png", Texture::RGBA);
+  shader.load(Global::ResPath + "/shaders/sprite");
 
-  Test test;
+  Vertex v1, v2, v3;
+  v1.position = vec4(0.5f, 0.0f, 0.0f, 1.0f);
+  v2.position = vec4(-0.5f, 0.0f, 0.0f, 1.0f);
+  v3.position = vec4(0.0f, 1.0f, 0.0f, 1.0f);
+  v1.color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+  v2.color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+  v3.color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+  uint i1 = mesh.addVertex<Vertex>(v1);
+  uint i2 = mesh.addVertex<Vertex>(v2);
+  uint i3 = mesh.addVertex<Vertex>(v3);
+  mesh.addTriangle(i1, i2, i3);
 
   return true;
 }
 
 void GalaxianEditor::update(float dt) {
   //
+  mesh.update();
 }
 
 void GalaxianEditor::draw(float dt) {
-  //
+  texture.bind();
+  shader.bind();
+  mesh.draw();
 }
 
 void GalaxianEditor::editor() {

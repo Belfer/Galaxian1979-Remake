@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-set(FRAMEWORK_HDRS
+set(CORE_HDRS
   "${CMAKE_CURRENT_SOURCE_DIR}/Global.hpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Engine.hpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Window.hpp"
@@ -12,7 +12,6 @@ set(FRAMEWORK_HDRS
   "${CMAKE_CURRENT_SOURCE_DIR}/LineBatch.hpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Camera.hpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Audio.hpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Test.hpp"
 
   "${CMAKE_CURRENT_SOURCE_DIR}/Input.hpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Types.hpp"
@@ -21,7 +20,7 @@ set(FRAMEWORK_HDRS
   PARENT_SCOPE
 )
 
-set(FRAMEWORK_SRCS
+set(CORE_SRCS
   "${CMAKE_CURRENT_SOURCE_DIR}/Global.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Engine.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Window.cpp"
@@ -33,6 +32,5 @@ set(FRAMEWORK_SRCS
   "${CMAKE_CURRENT_SOURCE_DIR}/LineBatch.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Camera.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Audio.cpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Test.cpp"
   PARENT_SCOPE
 )

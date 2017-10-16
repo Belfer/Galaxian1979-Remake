@@ -1,6 +1,9 @@
 #pragma once
 
-#include "Framework/Engine.hpp"
+#include "Core/Engine.hpp"
+#include "Core/Mesh.hpp"
+#include "Core/Shader.hpp"
+#include "Core/Texture.hpp"
 
 using namespace NHTV;
 
@@ -11,6 +14,10 @@ protected:
   virtual void draw(float dt) override;
   virtual void editor() override;
   virtual void close() override;
+
+  Texture texture;
+  Shader shader;
+  Mesh mesh;
 };
 
 /*#include "Game/Events.hpp"

@@ -27,6 +27,6 @@ private:
 
   std::map<size_t, Texture> m_textureMap;
   std::map<size_t, Shader> m_shaderMap;
-  std::map<size_t, IMesh*> m_meshMap;
+  std::map<size_t, Mesh> m_meshMap;
 };
 }

@@ -7,12 +7,11 @@ void genQuad(SpriteBatch::Quad &quad, const vec4 &rct, const vec4 &uvs,
 
 void applyTrx(SpriteBatch::Quad &quad, const mat4x4 &trx);
 
-void addQuadToMesh(Mesh<SpriteBatch::Vertex> &mesh,
-                   const SpriteBatch::Quad &quad);
+void addQuadToMesh(Mesh &mesh, const SpriteBatch::Quad &quad);
 
 SpriteBatch::SpriteBatch(Renderer &renderer, size_t size)
     : m_renderer(renderer) {
-  MeshParams<Vertex> params;
+  Mesh::Params params;
   m_mesh.configure(params);
 }
 
@@ -77,12 +76,11 @@ void applyTrx(SpriteBatch::Quad &quad, const mat4x4 &trx) {
   quad.v4.position = trx * quad.v4.position;
 }
 
-void addQuadToMesh(Mesh<SpriteBatch::Vertex> &mesh,
-                   const SpriteBatch::Quad &quad) {
-  const uint i1 = mesh.addVertex(quad.v1);
-  const uint i2 = mesh.addVertex(quad.v2);
-  const uint i3 = mesh.addVertex(quad.v3);
-  const uint i4 = mesh.addVertex(quad.v4);
+void addQuadToMesh(Mesh &mesh, const SpriteBatch::Quad &quad) {
+  const uint i1 = mesh.addVertex<SpriteBatch::Vertex>(quad.v1);
+  const uint i2 = mesh.addVertex<SpriteBatch::Vertex>(quad.v2);
+  const uint i3 = mesh.addVertex<SpriteBatch::Vertex>(quad.v3);
+  const uint i4 = mesh.addVertex<SpriteBatch::Vertex>(quad.v4);
   mesh.addTriangle(i1, i2, i3);
   mesh.addTriangle(i3, i2, i4);
 }

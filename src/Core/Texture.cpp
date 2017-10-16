@@ -4,24 +4,9 @@
 
 using namespace NHTV;
 
-Texture::Texture() { glGenTextures(1, &m_texture); }
-
-Texture::~Texture() { glDeleteTextures(1, &m_texture); }
-
 void Texture::configure(const Params &params) {
   m_params = params;
-  reconfigure();
-}
-
-void Texture::reconfigure() {
   generate();
-
-  glBindTexture(GL_TEXTURE_2D, m_texture);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_params.wrapMode);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_params.wrapMode);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_params.mipmapFilter);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_params.sampleFilter);
-  glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Texture::generate() {
@@ -30,6 +15,13 @@ void Texture::generate() {
       SOIL_CREATE_NEW_ID,
       SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB |
           SOIL_FLAG_COMPRESS_TO_DXT);
+
+  glBindTexture(GL_TEXTURE_2D, m_texture);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_params.wrapMode);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_params.wrapMode);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_params.mipmapFilter);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_params.sampleFilter);
+  glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Texture::load(const std::string &filename, PixelChannel pc) {
@@ -53,11 +45,12 @@ void Texture::load(const std::string &filename, PixelChannel pc) {
   std::memcpy(m_params.data, img, allocSize);
   SOIL_free_image_data(img);
 
-  reconfigure();
+  generate();
 }
 
 void Texture::bind() { glBindTexture(GL_TEXTURE_2D, m_texture); }
 
-void Texture::destroy() {
-  //
+void Texture::clear() {
+  m_params = Params();
+  glDeleteTextures(1, &m_texture);
 }

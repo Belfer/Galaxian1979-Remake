@@ -29,30 +29,26 @@ public:
   enum PixelChannel { RGB = SOIL_LOAD_RGB, RGBA = SOIL_LOAD_RGBA };
 
   struct Params {
-    WrapMode wrapMode;
-    MipmapFilter mipmapFilter;
-    SampleFilter sampleFilter;
-    uint width;
-    uint height;
-    uint bpp;
-    uchar *data;
+    WrapMode wrapMode = WrapMode::REPEAT;
+    MipmapFilter mipmapFilter = MipmapFilter::LINEAR_MIPMAP_LINEAR;
+    SampleFilter sampleFilter = SampleFilter::LINEAR;
+    uint width = 1;
+    uint height = 1;
+    uint bpp = 32;
+    uchar *data = nullptr;
   };
 
 public:
-  Texture();
-  ~Texture();
-
   void configure(const Params &params);
 
   void load(const std::string &filename, PixelChannel pc = PixelChannel::RGB);
 
   void bind();
 
-  void destroy();
+  void clear();
 
 private:
   void generate();
-  void reconfigure();
 
   uint m_texture;
   Params m_params;

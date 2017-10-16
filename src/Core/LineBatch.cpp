@@ -7,10 +7,10 @@ void genLine(LineBatch::Line &line, const vec3 &a, const vec3 &b,
 
 void applyTrx(LineBatch::Line &line, const mat4x4 &trx);
 
-void addLineToMesh(Mesh<LineBatch::Vertex> &mesh, const LineBatch::Line &line);
+void addLineToMesh(Mesh &mesh, const LineBatch::Line &line);
 
 LineBatch::LineBatch(Renderer &renderer, size_t size) : m_renderer(renderer) {
-  MeshParams<Vertex> params;
+  Mesh::Params params;
   m_mesh.configure(params);
 }
 
@@ -47,7 +47,7 @@ void applyTrx(LineBatch::Line &line, const mat4x4 &trx) {
   line.v2.position = trx * line.v2.position;
 }
 
-void addLineToMesh(Mesh<LineBatch::Vertex> &mesh, const LineBatch::Line &line) {
-  mesh.addVertex(line.v1);
-  mesh.addVertex(line.v2);
+void addLineToMesh(Mesh &mesh, const LineBatch::Line &line) {
+  mesh.addVertex<LineBatch::Vertex>(line.v1);
+  mesh.addVertex<LineBatch::Vertex>(line.v2);
 }

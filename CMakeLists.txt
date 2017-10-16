@@ -10,28 +10,23 @@ add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
 add_subdirectory(extern)
 add_subdirectory(src)
 
-include_directories(
-  src
-  ${DEPENDENCIES_INCLUDE}
-)
+include_directories(src ${DEPENDENCIES_INCLUDE})
 
-add_library(Framework ${FRAMEWORK_SRCS} ${FRAMEWORK_HDRS})
-# add_library(Game ${GAME_SRCS} ${GAME_HDRS})
+add_library(Core ${CORE_SRCS} ${CORE_HDRS})
+target_link_libraries(Core ${DEPENDENCIES_LIBS})
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
+  # add_library(Game ${GAME_SRCS} ${GAME_HDRS})
+  # target_link_libraries(Game Core)
+
   add_executable(${PROJECT_NAME} src/Game/main.cpp)
-  target_link_libraries(${PROJECT_NAME}
-    Framework
-    # Game
-    ${DEPENDENCIES_LIBS}
-  )
+  target_link_libraries(${PROJECT_NAME} Game)
+
 elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_library(Editor ${EDITOR_SRCS} ${EDITOR_HDRS})
+  target_link_libraries(Editor Core)
+
   add_executable(${PROJECT_NAME} src/Editor/main.cpp)
-  target_link_libraries(${PROJECT_NAME}
-    Framework
-    Editor
-    # Game
-    ${DEPENDENCIES_LIBS}
-  )
+  target_link_libraries(${PROJECT_NAME} Editor)
+
 endif(CMAKE_BUILD_TYPE STREQUAL "Release")

@@ -12,9 +12,12 @@ namespace NHTV {
 class Renderer;
 class LineBatch : public NonCopyable {
 public:
-  struct Vertex {
+  struct Vertex : public IVertex {
+    Vertex();
     vec4 position;
     vec4 color;
+
+    virtual void data(void *d) const override;
   };
 
   struct Line {
@@ -35,6 +38,20 @@ public:
 
 private:
   Renderer &m_renderer;
-  Mesh<Vertex> m_mesh;
+  Mesh m_mesh;
 };
+
+LineBatch::Vertex::Vertex() {}
+
+inline void LineBatch::Vertex::data(void *d) const {
+  float *fd = static_cast<float *>(d);
+  fd[0] = position.x;
+  fd[1] = position.y;
+  fd[2] = position.z;
+  fd[3] = position.w;
+  fd[4] = color.x;
+  fd[5] = color.y;
+  fd[6] = color.z;
+  fd[7] = color.w;
+}
 }

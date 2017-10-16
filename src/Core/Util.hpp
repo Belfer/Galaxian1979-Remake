@@ -7,6 +7,7 @@
 #include <vector>
 
 namespace NHTV {
+namespace Util {
 inline void readFile(const std::string &path, std::string &out) {
   std::ifstream ifs(path, std::ios::in);
 
@@ -41,5 +42,6 @@ inline std::string readFile(const std::string &path) {
 
   ifs.close();
   return out;
+}
 }
 }

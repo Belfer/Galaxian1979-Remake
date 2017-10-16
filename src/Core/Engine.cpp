@@ -13,7 +13,7 @@ int Engine::run(int argc, char **args, Application *app) {
     assert(false && "Resource path not specified!");
   Global::ResPath = args[1];
 
-  auto appData = json::parse(readFile(Global::ResPath + "/appData.json"));
+  auto appData = json::parse(Util::readFile(Global::ResPath + "/appData.json"));
 
   WinConfig config;
   config.title = appData["title"];
