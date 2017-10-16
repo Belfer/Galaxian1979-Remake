@@ -1,14 +1,12 @@
-#version 330
+#version 330 core
 
-// very simple pixel shader that just samples a texture
+in vec4 _Color;
+in vec2 _TexCoord0;
 
-in vec2 vUV;
-in vec4 vColor;
-out vec4 outColour;
+out vec4 _FragColor;
 
-uniform sampler2D diffuseTexture;
+uniform sampler2D Diffuse;
 
-void main()
-{
-    outColour = texture2D(diffuseTexture, vUV) * vColor;
+void main() {
+  _FragColor = _Color * texture2D(Diffuse, _TexCoord0);
 }

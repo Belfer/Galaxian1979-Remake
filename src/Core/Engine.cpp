@@ -28,8 +28,8 @@ int Engine::run(int argc, char **args, Application *app) {
   while (!window.shouldClose() && m_running) {
     window.pollEvents();
 
-    app->update(0);
-    app->draw(0);
+    app->update(0.0166f);
+    app->draw(0.0166f);
     app->editor();
 
     window.display();

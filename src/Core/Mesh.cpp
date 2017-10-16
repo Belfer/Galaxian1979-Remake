@@ -1,25 +1,6 @@
 #include "Mesh.hpp"
-#include <iostream>
 
 using namespace NHTV;
-
-template <typename Num>
-void bufferData(const IAttribArray *pAttribArr, const IVertex::Desc &desc,
-                size_t idx, size_t offset) {
-  const AttribArray<Num> &attribArray =
-      *static_cast<const AttribArray<Num> *>(pAttribArr);
-
-  for (uint i = 0; i < attribArray.data.size(); ++i) {
-    std::cout << attribArray.data[i] << "\n";
-  }
-
-  glBindBuffer(GL_ARRAY_BUFFER, idx);
-  glBufferData(GL_ARRAY_BUFFER, attribArray.data.size(), &attribArray.data[0],
-               GL_DYNAMIC_DRAW);
-
-  glVertexAttribPointer(idx, desc.size, desc.type, desc.norm,
-                        desc.size * sizeof(Num), (void *)offset);
-}
 
 void Mesh::configure(const Params &params) {
   m_params = params;
@@ -27,38 +8,53 @@ void Mesh::configure(const Params &params) {
 }
 
 void Mesh::generate() {
+  float buffer[m_params.vertices.size() * 10];
+  uint idx = 0;
+  for (auto vert : m_params.vertices) {
+    buffer[idx++] = vert.position.x;
+    buffer[idx++] = vert.position.y;
+    buffer[idx++] = vert.position.z;
+    buffer[idx++] = vert.position.w;
+    buffer[idx++] = vert.color.x;
+    buffer[idx++] = vert.color.y;
+    buffer[idx++] = vert.color.z;
+    buffer[idx++] = vert.color.w;
+    buffer[idx++] = vert.texcoord.x;
+    buffer[idx++] = vert.texcoord.y;
+  }
+
   glGenVertexArrays(1, &m_mesh);
   glBindVertexArray(m_mesh);
 
-  glGenBuffers(m_params.attributes.size(), &m_mesh);
-  size_t offset = 0;
-  for (size_t i = 0; i < m_params.attributes.size(); ++i) {
-    auto desc = m_params.attributes[i].pAttribArr->desc;
+  // Vertex buffer
+  uint VBO = 0;
+  glGenBuffers(1, &VBO);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(buffer), buffer, m_params.meshMode);
 
-    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
-    // GL_STATIC_DRAW);
+  // Position
+  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float),
+                        (void *)(0));
+  glEnableVertexAttribArray(0);
 
-    if (desc.type == IVertex::Desc::BYTE) {
-      bufferData<char>(m_params.attributes[i].pAttribArr, desc, i, offset);
-      offset += desc.size * sizeof(char);
+  // Color
+  glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float),
+                        (void *)(4 * sizeof(float)));
+  glEnableVertexAttribArray(1);
 
-    } else if (desc.type == IVertex::Desc::INT) {
-      bufferData<int>(m_params.attributes[i].pAttribArr, desc, i, offset);
-      offset += desc.size * sizeof(int);
+  // Texcoord
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 10 * sizeof(float),
+                        (void *)(8 * sizeof(float)));
+  glEnableVertexAttribArray(2);
 
-    } else if (desc.type == IVertex::Desc::FLOAT) {
-      bufferData<float>(m_params.attributes[i].pAttribArr, desc, i, offset);
-      offset += desc.size * sizeof(float);
-    }
+  // Element buffer
+  uint EBO = 0;
+  glGenBuffers(1, &EBO);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_params.indices.size() * sizeof(uint),
+               &m_params.indices[0], m_params.meshMode);
 
-    glEnableVertexAttribArray(i);
-  }
-
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
-
-  m_updated = false;
 }
 
 void Mesh::load(const std::string &filename) {
@@ -74,23 +70,14 @@ void Mesh::update() {
 }
 
 void Mesh::draw() {
-  //  for (size_t i = 0; i < m_params.attributes.size(); ++i) {
-  //    const AttribArray<float> &attribArray =
-  //        *static_cast<const AttribArray<float> *>(
-  //            m_params.attributes[i].pAttribArr);
-  //    std::cout << "";
-  //  }
-
   glBindVertexArray(m_mesh);
-  // glDrawArrays(GL_TRIANGLES, 0, m_vertCount);
+  const size_t indxCount = m_params.indices.size();
+  glDrawElements(m_params.drawMode, indxCount, GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
-
-  // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
 void Mesh::clear() {
-  m_params.attributes.clear();
+  m_params.vertices.clear();
   m_params.indices.clear();
-  glDeleteBuffers(1, &m_mesh);
+  glDeleteVertexArrays(1, &m_mesh);
 }

@@ -1,64 +1,77 @@
 #include "GalaxianEditor.hpp"
+#include "Core/Color.hpp"
 #include "Core/Global.hpp"
 #include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
 #include <iostream>
 
 using namespace glm;
 
-struct Vertex : public IVertex {
-  Vertex() {
-    totalSize = 8 * sizeof(float);
-    IVertex::Desc desc;
-    desc.size = IVertex::Desc::_4;
-    desc.type = IVertex::Desc::FLOAT;
-    desc.norm = false;
+Texture texture;
+Shader shader;
+Mesh mesh;
 
-    descList.emplace_back(desc);
-    descList.emplace_back(desc);
-  }
+mat4x4 modelview;
+mat4x4 projection;
 
-  vec4 position;
-  vec4 color;
-
-  virtual void data(void *d) const {
-    float *fd = static_cast<float *>(d);
-    fd[0] = position.x;
-    fd[1] = position.y;
-    fd[2] = position.z;
-    fd[3] = position.w;
-    fd[4] = color.x;
-    fd[5] = color.y;
-    fd[6] = color.z;
-    fd[7] = color.w;
-  }
-};
+float t = 0;
 
 bool GalaxianEditor::init(int argc, char **args) {
+  const float hw = 768.0f * 0.5f;
+  const float hh = 768.0f * 0.5f;
+  projection = glm::ortho(-hw, hw, -hh, hh);
+  modelview = glm::translate(vec3(0, 0, 0)) * glm::scale(vec3(hw, hh, 1));
+
+  // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_BLEND);
+
   texture.load(Global::ResPath + "/images/invader.png", Texture::RGBA);
+  texture.setSampleFilter(Texture::NEAREST);
+
   shader.load(Global::ResPath + "/shaders/sprite");
 
-  Vertex v1, v2, v3;
-  v1.position = vec4(0.5f, 0.0f, 0.0f, 1.0f);
-  v2.position = vec4(-0.5f, 0.0f, 0.0f, 1.0f);
-  v3.position = vec4(0.0f, 1.0f, 0.0f, 1.0f);
-  v1.color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-  v2.color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-  v3.color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+  Vertex v1, v2, v3, v4;
 
-  uint i1 = mesh.addVertex<Vertex>(v1);
-  uint i2 = mesh.addVertex<Vertex>(v2);
-  uint i3 = mesh.addVertex<Vertex>(v3);
-  mesh.addTriangle(i1, i2, i3);
+  v1.position = vec4(0.5f, 0.5f, 0.0f, 1.0f);
+  v1.color = vec4(0.0f, 1.0f, 1.0f, 1.0f);
+  v1.texcoord = vec2(1.0f, 1.0f);
 
+  v2.position = vec4(0.5f, -0.5f, 0.0f, 1.0f);
+  v2.color = vec4(1.0f, 0.0f, 1.0f, 1.0f);
+  v2.texcoord = vec2(1.0f, 0.0f);
+
+  v3.position = vec4(-0.5f, -0.5f, 0.0f, 1.0f);
+  v3.color = vec4(1.0f, 1.0f, 0.0f, 1.0f);
+  v3.texcoord = vec2(0.0f, 0.0f);
+
+  v4.position = vec4(-0.5f, 0.5f, 0.0f, 1.0f);
+  v4.color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+  v4.texcoord = vec2(0.0f, 1.0f);
+
+  uint i1 = mesh.addVertex(v1);
+  uint i2 = mesh.addVertex(v2);
+  uint i3 = mesh.addVertex(v3);
+  uint i4 = mesh.addVertex(v4);
+
+  mesh.addTriangle(i1, i2, i4);
+  mesh.addTriangle(i2, i3, i4);
   return true;
 }
 
 void GalaxianEditor::update(float dt) {
-  //
+  t += dt;
+  // modelview = glm::translate(vec3(t*0.01f, 0, 0));
+
+  shader.setMat4x4("ModelView", modelview);
+  shader.setMat4x4("Projection", projection);
   mesh.update();
 }
 
 void GalaxianEditor::draw(float dt) {
+  glClearColor(0.1, 0.1, 0.1, 1);
+  glClear(GL_COLOR_BUFFER_BIT);
+
   texture.bind();
   shader.bind();
   mesh.draw();

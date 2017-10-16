@@ -3,6 +3,7 @@
 #include <cstddef>
 
 namespace NHTV {
-using uint = unsigned int;
 using uchar = unsigned char;
+using uint = unsigned int;
+using ulong = unsigned long;
 }

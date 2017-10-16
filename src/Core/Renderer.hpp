@@ -3,7 +3,6 @@
 #include "Mesh.hpp"
 #include "NonCopyable.hpp"
 #include "Shader.hpp"
-#include "SpriteBatch.hpp"
 #include "Texture.hpp"
 #include <glm/glm.hpp>
 #include <map>

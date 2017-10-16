@@ -14,10 +14,6 @@ protected:
   virtual void draw(float dt) override;
   virtual void editor() override;
   virtual void close() override;
-
-  Texture texture;
-  Shader shader;
-  Mesh mesh;
 };
 
 /*#include "Game/Events.hpp"

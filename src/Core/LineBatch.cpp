@@ -48,6 +48,6 @@ void applyTrx(LineBatch::Line &line, const mat4x4 &trx) {
 }
 
 void addLineToMesh(Mesh &mesh, const LineBatch::Line &line) {
-  mesh.addVertex<LineBatch::Vertex>(line.v1);
-  mesh.addVertex<LineBatch::Vertex>(line.v2);
+  mesh.addVertex(line.v1);
+  mesh.addVertex(line.v2);
 }

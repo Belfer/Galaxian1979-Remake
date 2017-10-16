@@ -25,6 +25,7 @@ set(CORE_SRCS
   "${CMAKE_CURRENT_SOURCE_DIR}/Engine.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Window.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Renderer.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Color.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Texture.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Shader.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Mesh.cpp"

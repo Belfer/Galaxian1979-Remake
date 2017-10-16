@@ -1,28 +1,56 @@
 #pragma once
 
 #include "Types.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 
 namespace NHTV {
+struct Color;
+struct HSL;
+
 struct Color {
-  Color() { color.hex = 0xFFFFFFFF; }
-  Color(uint hex) { color.hex = hex; }
-  Color(uchar r, uchar g, uchar b, uchar a) {
-    color.argb.r = r;
-    color.argb.g = g;
-    color.argb.b = b;
-    color.argb.a = a;
-  }
   union {
     uint hex;
     struct Colors {
-      uchar a, r, g, b;
-    } argb;
+      uchar r, g, b, a;
+    } rgba;
   } color;
 
-  static const Color White = Color(0xFFFFFFFF);
-  static const Color Black = Color(0x00000000);
-  static const Color Red = Color(0xFF0000FF);
-  static const Color Green = Color(0x00FF00FF);
-  static const Color Blue = Color(0x0000FFFF);
+  Color(uint hex = 0xFFFFFFFF);
+  Color(uchar r, uchar g, uchar b, uchar a = 255);
+
+  inline uchar r() const { return color.rgba.r; }
+  inline uchar g() const { return color.rgba.g; }
+  inline uchar b() const { return color.rgba.b; }
+  inline uchar a() const { return color.rgba.a; }
+  inline uint hex() const { return color.hex; }
+
+  static const Color White;
+  static const Color Black;
+  static const Color Red;
+  static const Color Green;
+  static const Color Blue;
+  static const Color Yellow;
+  static const Color Cyan;
+
+  HSL toHSL(const Color &c);
 };
+
+struct HSL {
+  double hue;
+  double saturation;
+  double luminance;
+
+  HSL() : hue(0), saturation(0), luminance(0) {}
+  HSL(int h, int s, int l);
+
+  Color toColor();
+};
+
+bool operator==(const Color &left, const Color &right);
+bool operator!=(const Color &left, const Color &right);
+Color operator+(const Color &left, const Color &right);
+Color operator*(const Color &left, const Color &right);
+Color &operator+=(Color &left, const Color &right);
+Color &operator*=(Color &left, const Color &right);
 }

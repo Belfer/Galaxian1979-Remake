@@ -1,25 +1,17 @@
-#version 330
+#version 330 core
 
-// very simple vertex shader that just transforms an object-space
-// position into clip space and passes along a texture coordinate
+layout (location = 0) in vec4 Position;
+layout (location = 1) in vec4 Color;
+layout (location = 2) in vec2 TexCoord0;
 
-in vec4 Position;
-in vec4 Color;
-in vec2 UV;
+out vec4 _Color;
+out vec2 _TexCoord0;
 
-out vec2 vUV;
-out vec4 vColor;
-
+uniform mat4 ModelView;
 uniform mat4 Projection;
-uniform mat4 View;
-uniform mat4 Model;
-uniform vec4 tintColor;
-uniform vec2 uvScale;
-uniform vec2 uvOffset;
 
-void main()
-{
-	vUV = UV * uvScale + uvOffset;
-	vColor = Color * tintColor;
-	gl_Position = Projection * View * Model * Position;
+void main() {
+  gl_Position = Position * ModelView * Projection;
+  _Color = Color;
+  _TexCoord0 = TexCoord0;
 }

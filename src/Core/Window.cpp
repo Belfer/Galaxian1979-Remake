@@ -1,4 +1,5 @@
 #include "Window.hpp"
+#include "Global.hpp"
 #include <assert.h>
 #include <iostream>
 
@@ -10,28 +11,28 @@ void errorCallback(int error, const char *description) {
 
 void windowCloseCallback(GLFWwindow *window) {
   glfwSetWindowShouldClose(window, true);
-  // Global::eventBus.broadcast<WindowCloseEvent>(0);
+  Global::InputEventMgr.emit<WindowCloseEvent>(0);
 }
 
 void windowSizeCallback(GLFWwindow *window, int width, int height) {
-  // Global::eventBus.broadcast<WindowSizeEvent>(0, width, height);
+  Global::InputEventMgr.emit<WindowSizeEvent>(0, width, height);
 }
 
 void windowPosCallback(GLFWwindow *window, int xpos, int ypos) {
-  // Global::eventBus.broadcast<WindowPosEvent>(0, xpos, ypos);
+  Global::InputEventMgr.emit<WindowPosEvent>(0, xpos, ypos);
 }
 
 void framebufferSizeCallback(GLFWwindow *window, int width, int height) {
-  // Global::eventBus.broadcast<FramebufferSizeEvent>(0, width, height);
+  Global::InputEventMgr.emit<FramebufferSizeEvent>(0, width, height);
 }
 
 void windowFocusCallback(GLFWwindow *window, int focused) {
-  // Global::eventBus.broadcast<WindowFocusEvent>(0, focused);
+  Global::InputEventMgr.emit<WindowFocusEvent>(0, focused);
 }
 
 void windowRefreshCallback(GLFWwindow *window) {
   glfwSwapBuffers(window);
-  // Global::eventBus.broadcast<WindowRefreshEvent>(0);
+  Global::InputEventMgr.emit<WindowRefreshEvent>(0);
 }
 
 void keyCallback(GLFWwindow *window, int key, int scancode, int action,
@@ -39,31 +40,31 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action,
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);
 
-  // Global::eventBus.broadcast<KeyboardEvent>(0, key, scancode, action, mods);
+  Global::InputEventMgr.emit<KeyboardEvent>(0, key, scancode, action, mods);
 }
 
 void mouseBtnCallback(GLFWwindow *window, int button, int action, int mods) {
-  // Global::eventBus.broadcast<MouseBtnEvent>(0, button, action, mods);
+  Global::InputEventMgr.emit<MouseBtnEvent>(0, button, action, mods);
 }
 
 void mousePosCallback(GLFWwindow *window, double xpos, double ypos) {
-  // Global::eventBus.broadcast<MousePosEvent>(0, xpos, ypos);
+  Global::InputEventMgr.emit<MousePosEvent>(0, xpos, ypos);
 }
 
 void mouseEnterCallback(GLFWwindow *window, int entered) {
-  // Global::eventBus.broadcast<MouseEnterEvent>(0, entered);
+  Global::InputEventMgr.emit<MouseEnterEvent>(0, entered);
 }
 
 void scrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
-  // Global::eventBus.broadcast<ScrollEvent>(0, xoffset, yoffset);
+  Global::InputEventMgr.emit<ScrollEvent>(0, xoffset, yoffset);
 }
 
 void charCallback(GLFWwindow *window, uint codepoint) {
-  // Global::eventBus.broadcast<CharEvent>(0, codepoint);
+  Global::InputEventMgr.emit<CharEvent>(0, codepoint);
 }
 
 void joystickCallback(int joy, int event) {
-  // Global::eventBus.broadcast<JoystickEvent>(joy, event);
+  Global::InputEventMgr.emit<JoystickEvent>(joy, event);
 }
 
 Window::Window(const WinConfig &config) {

@@ -48,7 +48,10 @@ void Texture::load(const std::string &filename, PixelChannel pc) {
   generate();
 }
 
-void Texture::bind() { glBindTexture(GL_TEXTURE_2D, m_texture); }
+void Texture::bind() {
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, m_texture);
+}
 
 void Texture::clear() {
   m_params = Params();

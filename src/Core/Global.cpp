@@ -2,4 +2,5 @@
 
 namespace Global {
 std::string ResPath = "";
+entityx::EventManager InputEventMgr;
 }
