@@ -20,16 +20,28 @@ public:
 
   SpriteBatch(Renderer &renderer, size_t size = 100);
 
-  void drawSprite(const vec4 &rct, const vec4 &uvs, const vec4 &color, float z);
+  void drawSprite(const vec4 &rct, const vec4 &uvs, const vec4 &color);
 
-  void drawSprite(const vec4 &rct, const vec4 &uvs, const vec4 &color, float z,
+  void drawSprite(const vec4 &rct, const vec4 &uvs, const vec4 &color,
                   const mat4x4 &trx);
 
+  void configure();
   void update();
   void draw();
+  void clear();
 
 private:
   Renderer &m_renderer;
   Mesh m_mesh;
+  std::vector<Quad> m_quads;
 };
+
+inline void SpriteBatch::update() { m_mesh.update(); }
+
+inline void SpriteBatch::draw() { m_mesh.draw(); }
+
+inline void SpriteBatch::clear() {
+  m_mesh.clear();
+  m_quads.clear();
+}
 }

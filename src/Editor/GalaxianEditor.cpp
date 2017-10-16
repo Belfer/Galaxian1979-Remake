@@ -1,8 +1,11 @@
 #include "GalaxianEditor.hpp"
 #include "Core/Color.hpp"
 #include "Core/Global.hpp"
+#include "Core/SpriteBatch.hpp"
+#include "imgui_impl.h"
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
+#include <imgui.h>
 #include <iostream>
 
 using namespace glm;
@@ -10,6 +13,9 @@ using namespace glm;
 Texture texture;
 Shader shader;
 Mesh mesh;
+
+Renderer renderer;
+SpriteBatch spriteBatch(renderer);
 
 mat4x4 modelview;
 mat4x4 projection;
@@ -19,12 +25,20 @@ float t = 0;
 bool GalaxianEditor::init(int argc, char **args) {
   const float hw = 768.0f * 0.5f;
   const float hh = 768.0f * 0.5f;
-  projection = glm::ortho(-hw, hw, -hh, hh);
-  modelview = glm::translate(vec3(0, 0, 0)) * glm::scale(vec3(hw, hh, 1));
+  projection = glm::ortho(-hw, hw, -hh, hh, 1.f, 100.f);
+  modelview = glm::translate(vec3(0, 0, -1)) * glm::scale(vec3(hw, hh, 1));
 
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_BLEND);
+
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_DEPTH_CLAMP);
+  glEnable(GL_MULTISAMPLE);
+
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_BACK);
+  glFrontFace(GL_CCW);
 
   texture.load(Global::ResPath + "/images/invader.png", Texture::RGBA);
   texture.setSampleFilter(Texture::NEAREST);
@@ -54,8 +68,10 @@ bool GalaxianEditor::init(int argc, char **args) {
   uint i3 = mesh.addVertex(v3);
   uint i4 = mesh.addVertex(v4);
 
-  mesh.addTriangle(i1, i2, i4);
-  mesh.addTriangle(i2, i3, i4);
+  mesh.addTriangle(i1, i4, i2);
+  mesh.addTriangle(i3, i2, i4);
+
+  spriteBatch.configure();
   return true;
 }
 
@@ -63,16 +79,35 @@ void GalaxianEditor::update(float dt) {
   t += dt;
   // modelview = glm::translate(vec3(t*0.01f, 0, 0));
 
-  shader.setMat4x4("ModelView", modelview);
-  shader.setMat4x4("Projection", projection);
+  spriteBatch.clear();
+  for (int i = 0; i < 10; ++i) {
+    for (int j = 0; j < 10; ++j) {
+      spriteBatch.drawSprite(
+          vec4(-16, -16, 16, 16), vec4(0, 0, 1, 1),
+          vec4((rand() % 100) / 100.f, (rand() % 100) / 100.f,
+               (rand() % 100) / 100.f, (rand() % 100) / 100.f),
+          glm::translate(vec3(cos(t) * (rand() % 160) + (38.4f * (i - 4)) - 16,
+                              sin(t) * (rand() % 160) + (38.4f * (j - 4)) - 16,
+                              -5)));
+    }
+  }
+  spriteBatch.update();
   mesh.update();
 }
 
 void GalaxianEditor::draw(float dt) {
   glClearColor(0.1, 0.1, 0.1, 1);
-  glClear(GL_COLOR_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   texture.bind();
+
+  shader.setMat4x4("Projection", projection);
+  shader.setMat4x4("ModelView", mat4x4{1});
+  shader.bind();
+  spriteBatch.draw();
+
+  shader.setMat4x4("Projection", projection);
+  shader.setMat4x4("ModelView", modelview);
   shader.bind();
   mesh.draw();
 }

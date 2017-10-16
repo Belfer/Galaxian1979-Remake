@@ -4,6 +4,7 @@
 
 #include "NonCopyable.hpp"
 #include "Types.hpp"
+#include "Vertex.hpp"
 #include <assert.h>
 #include <glm/glm.hpp>
 #include <iostream>
@@ -11,12 +12,6 @@
 #include <vector>
 
 namespace NHTV {
-struct Vertex {
-  glm::vec4 position{0};
-  glm::vec4 color{0};
-  glm::vec2 texcoord{0};
-};
-
 class Mesh : public NonCopyable {
 public:
   enum MeshMode {

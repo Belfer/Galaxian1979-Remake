@@ -13,6 +13,8 @@ set(CORE_HDRS
   "${CMAKE_CURRENT_SOURCE_DIR}/Camera.hpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Audio.hpp"
 
+  "${CMAKE_CURRENT_SOURCE_DIR}/Vertex.hpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Material.hpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Input.hpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Types.hpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/NonCopyable.hpp"

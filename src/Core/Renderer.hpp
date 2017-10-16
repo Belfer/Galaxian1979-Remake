@@ -14,16 +14,16 @@ namespace NHTV {
 
 class Renderer : public NonCopyable {
 public:
-  static Renderer &Instance() {
-    static Renderer *pInstance = nullptr;
-    if (pInstance == nullptr)
-      pInstance = new Renderer();
-    return *pInstance;
-  }
+  Renderer() {}
+  ~Renderer() {}
+  //  static Renderer &Instance() {
+  //    static Renderer *pInstance = nullptr;
+  //    if (pInstance == nullptr)
+  //      pInstance = new Renderer();
+  //    return *pInstance;
+  //  }
 
 private:
-  Renderer();
-
   std::map<size_t, Texture> m_textureMap;
   std::map<size_t, Shader> m_shaderMap;
   std::map<size_t, Mesh> m_meshMap;
