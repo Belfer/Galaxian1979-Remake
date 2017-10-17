@@ -41,10 +41,10 @@ void Shader::generate() {
   glDeleteShader(frag);
 }
 
-void Shader::load(const std::string &filename) {
+void Shader::load(const std::string &vertfile, const std::string &fragfile) {
   std::string vert, frag;
-  Util::readFile(filename + ".vert", vert);
-  Util::readFile(filename + ".frag", frag);
+  Util::readFile(vertfile, vert);
+  Util::readFile(fragfile, frag);
 
   m_params.vert = vert;
   m_params.frag = frag;

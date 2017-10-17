@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Components.hpp"
-#include "Framework/Application.h"
+#include "Core/Engine.hpp"
 #include <entityx/entityx.h>
 #include <glm/glm.hpp>
 

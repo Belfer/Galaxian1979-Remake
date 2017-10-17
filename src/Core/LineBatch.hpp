@@ -24,11 +24,23 @@ public:
   void drawLine(const vec3 &a, const vec3 &b, const vec4 &colA,
                 const vec4 &colB, const mat4x4 &trx);
 
+  void configure();
   void update();
   void draw();
+  void clear();
 
 private:
   Renderer &m_renderer;
   Mesh m_mesh;
+  std::vector<Line> m_lines;
 };
+
+inline void LineBatch::update() { m_mesh.update(); }
+
+inline void LineBatch::draw() { m_mesh.draw(); }
+
+inline void LineBatch::clear() {
+  m_mesh.clear();
+  m_lines.clear();
+}
 }

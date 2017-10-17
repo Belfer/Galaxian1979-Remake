@@ -2,9 +2,9 @@
 
 #include <glad/glad.h>
 
+#include "Input.hpp"
 #include "NonCopyable.hpp"
 #include "Types.hpp"
-#include "Input.hpp"
 #include <GLFW/glfw3.h>
 #include <string>
 
@@ -20,72 +20,116 @@ struct Window : NonCopyable {
   Window(const WinConfig &config);
   ~Window();
 
-  inline bool shouldClose() { return glfwWindowShouldClose(m_pWindow); }
+  bool shouldClose();
 
-  inline void pollEvents() { glfwPollEvents(); }
+  void pollEvents();
 
-  inline void display() { glfwSwapBuffers(m_pWindow); }
+  void display();
 
-  inline void getWindowSize(int *width, int *height) const {
-    glfwGetWindowSize(m_pWindow, width, height);
-  }
+  void getWindowSize(int &width, int &height) const;
 
-  inline void getFramebufferSize(int *width, int *height) const {
-    glfwGetFramebufferSize(m_pWindow, width, height);
-  }
+  void getFramebufferSize(int &width, int &height) const;
 
-  inline void getWindowFrameSize(int *left, int *top, int *right,
-                                 int *bottom) const {
-    glfwGetWindowFrameSize(m_pWindow, left, top, right, bottom);
-  }
+  void getWindowFrameSize(int &left, int &top, int &right, int &bottom) const;
 
-  inline void getWindowPos(int *xpos, int *ypos) const {
-    glfwGetWindowPos(m_pWindow, xpos, ypos);
-  }
+  void getWindowPos(int &xpos, int &ypos) const;
 
-  inline void setWindowPos(int xpos, int ypos) {
-    glfwSetWindowPos(m_pWindow, xpos, ypos);
-  }
+  void setWindowPos(int xpos, int ypos);
 
-  inline void setWindowTitle(const char *title) {
-    glfwSetWindowTitle(m_pWindow, title);
-  }
+  void setWindowTitle(const char *title);
 
-  inline void showWindow() { glfwShowWindow(m_pWindow); }
+  void showWindow();
 
-  inline void hideWindow() { glfwHideWindow(m_pWindow); }
+  void hideWindow();
 
   // inline void focusWindow() { glfwFocusWindow(m_pWindow); }
   // int focused = glfwGetWindowAttrib(window, GLFW_FOCUSED);
   // int visible = glfwGetWindowAttrib(window, GLFW_VISIBLE);
 
-  inline int getKey(int key) const { return glfwGetKey(m_pWindow, key); }
+  int getKey(int key) const;
 
-  inline int getMouseBtn(int btn) const {
-    return glfwGetMouseButton(m_pWindow, btn);
-  }
+  int getMouseBtn(int btn) const;
 
-  inline void getMousePos(double *xpos, double *ypos) const {
-    glfwGetCursorPos(m_pWindow, xpos, ypos);
-  }
+  void getMousePos(double &xpos, double &ypos) const;
 
-  inline int isJoystickPresent(int joy) const {
-    return glfwJoystickPresent(joy);
-  }
+  int isJoystickPresent(int joy) const;
 
-  inline const float *getJoystickAxes(int joy, int *count) const {
-    return glfwGetJoystickAxes(joy, count);
-  }
+  const float *getJoystickAxes(int joy, int &count) const;
 
-  inline const uchar *getJoystickBtns(int joy, int *count) const {
-    return glfwGetJoystickButtons(joy, count);
-  }
+  const uchar *getJoystickBtns(int joy, int &count) const;
 
-  inline const char *getJoystickName(int joy) const {
-    return glfwGetJoystickName(joy);
-  }
+  const char *getJoystickName(int joy) const;
+
+  GLFWwindow *getPtr() const;
 
 private:
   GLFWwindow *m_pWindow;
 };
+
+inline bool Window::shouldClose() { return glfwWindowShouldClose(m_pWindow); }
+
+inline void Window::pollEvents() { glfwPollEvents(); }
+
+inline void Window::display() { glfwSwapBuffers(m_pWindow); }
+
+inline void Window::getWindowSize(int &width, int &height) const {
+  glfwGetWindowSize(m_pWindow, &width, &height);
+}
+
+inline void Window::getFramebufferSize(int &width, int &height) const {
+  glfwGetFramebufferSize(m_pWindow, &width, &height);
+}
+
+inline void Window::getWindowFrameSize(int &left, int &top, int &right,
+                                       int &bottom) const {
+  glfwGetWindowFrameSize(m_pWindow, &left, &top, &right, &bottom);
+}
+
+inline void Window::getWindowPos(int &xpos, int &ypos) const {
+  glfwGetWindowPos(m_pWindow, &xpos, &ypos);
+}
+
+inline void Window::setWindowPos(int xpos, int ypos) {
+  glfwSetWindowPos(m_pWindow, xpos, ypos);
+}
+
+inline void Window::setWindowTitle(const char *title) {
+  glfwSetWindowTitle(m_pWindow, title);
+}
+
+inline void Window::showWindow() { glfwShowWindow(m_pWindow); }
+
+inline void Window::hideWindow() { glfwHideWindow(m_pWindow); }
+
+// inline void focusWindow() { glfwFocusWindow(m_pWindow); }
+// int focused = glfwGetWindowAttrib(window, GLFW_FOCUSED);
+// int visible = glfwGetWindowAttrib(window, GLFW_VISIBLE);
+
+inline int Window::getKey(int key) const { return glfwGetKey(m_pWindow, key); }
+
+inline int Window::getMouseBtn(int btn) const {
+  return glfwGetMouseButton(m_pWindow, btn);
+}
+
+inline void Window::getMousePos(double &xpos, double &ypos) const {
+  glfwGetCursorPos(m_pWindow, &xpos, &ypos);
+}
+
+inline int Window::isJoystickPresent(int joy) const {
+  return glfwJoystickPresent(joy);
+}
+
+inline const float *Window::getJoystickAxes(int joy, int &count) const {
+  return glfwGetJoystickAxes(joy, &count);
+}
+
+inline const uchar *Window::getJoystickBtns(int joy, int &count) const {
+  return glfwGetJoystickButtons(joy, &count);
+}
+
+inline const char *Window::getJoystickName(int joy) const {
+  return glfwGetJoystickName(joy);
+}
+
+inline GLFWwindow *Window::getPtr() const { return m_pWindow; }
 }

@@ -1,8 +1,10 @@
 #pragma once
 
-#include "Framework/Application.h"
+#include "Core/Engine.hpp"
+#include "Core/Color.hpp"
 #include <entityx/entityx.h>
 #include <glm/glm.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 using namespace NHTV;
 using namespace entityx;
@@ -12,10 +14,10 @@ using namespace glm;
  * @brief The CameraCmp struct
  */
 struct CameraCmp {
-  CameraCmp(size_t id, Camera &camera) : id(id), camera(camera) {}
+  CameraCmp(size_t id /*, Camera &camera*/) : id(id) {} //, camera(camera) {}
 
   const size_t id;
-  Camera &camera;
+  // Camera &camera;
 };
 
 /**
@@ -72,7 +74,7 @@ struct ParticleCmp {
     float time = 0;
     float life = 1;
     float zdepth = 1;
-    SColour color = 0xFFFFFFFF;
+    Color color = 0xFFFFFFFF;
   };
 
   Mode mode = LOOP;

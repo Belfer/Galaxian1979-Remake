@@ -1,6 +1,6 @@
 #include "GalaxianApp.hpp"
+#include "Core/Global.hpp"
 #include "Factory.hpp"
-#include "Framework/Config.h"
 #include "Systems.hpp"
 #include <GLFW/glfw3.h>
 #include <glm/ext.hpp>
@@ -9,7 +9,7 @@
 void GalaxianApp::receive(const PlayerKilledEvent &e) { m_slowmo = true; }
 
 void GalaxianApp::receive(const GameResetEvent &e) {
-  ClearCameras();
+  // ClearCameras();
   m_slowmo = false;
 }
 
@@ -17,9 +17,9 @@ void GalaxianApp::receive(const ExplosionEvent &e) {
   m_time = 0;
   int screenWidth;
   int screenHeight;
-  GetScreenSize(screenWidth, screenHeight);
-  SetPositionPostFxVar(
-      vec4(e.pos.x / screenWidth, 1 - (e.pos.y / screenHeight), 0, 0));
+  // GetScreenSize(screenWidth, screenHeight);
+  // SetPositionPostFxVar(
+  //    vec4(e.pos.x / screenWidth, 1 - (e.pos.y / screenHeight), 0, 0));
 }
 
 bool GalaxianApp::onCreate(int argc, char **argv) {
@@ -36,38 +36,38 @@ bool GalaxianApp::onCreate(int argc, char **argv) {
 
 void GalaxianApp::onUpdate(float dt) {
   // Quit app when escape is pressed
-  if (IsKeyDown(KEY_ESCAPE))
-    destroy();
+  // if (IsKeyDown(KEY_ESCAPE))
+  //  destroy();
 
   m_time += dt;
   if (m_paused)
-    m_timeScale = Lerp(m_timeScale, 0.f, 0.1f);
+    m_timeScale = lerp(m_timeScale, 0.f, 0.1f);
   else if (m_slowmo)
-    m_timeScale = Lerp(m_timeScale, SLOWMO_TD, 0.05f);
+    m_timeScale = lerp(m_timeScale, SLOWMO_TD, 0.05f);
   else
-    m_timeScale = Lerp(m_timeScale, 1.f, 0.1f);
+    m_timeScale = lerp(m_timeScale, 1.f, 0.1f);
 
-  SetTimePostFxVar(m_time);
-  SetTimeScale(m_timeScale);
-  SetPostProcessEnabled(m_postproc);
-  SetTimePostFxVar(m_time);
+  // SetTimePostFxVar(m_time);
+  // SetTimeScale(m_timeScale);
+  // SetPostProcessEnabled(m_postproc);
+  // SetTimePostFxVar(m_time);
 
   // Update cameras
-  int screenWidth;
-  int screenHeight;
-  GetScreenSize(screenWidth, screenHeight);
+  // int screenWidth;
+  // int screenHeight;
+  // GetScreenSize(screenWidth, screenHeight);
 
-  for (auto &camera : GetCameras()) {
-    camera.second.orthographic(0.f, (float)screenWidth, 0.f,
-                               (float)screenHeight, 0.01f, 1000.f);
-  }
+  // for (auto &camera : GetCameras()) {
+  // camera.second.orthographic(0.f, (float)screenWidth, 0.f,
+  //                             (float)screenHeight, 0.01f, 1000.f);
+  //}
 
   // Update logic systems
   updateSystems(dt);
 }
 
 void GalaxianApp::onDraw(float dt) {
-  ClearScreen();
+  // ClearScreen();
 
   // Update render systems
   renderSystems(dt);
@@ -84,10 +84,10 @@ void GalaxianApp::load() {
   srand(time(NULL));
 
   // Load resources
-  SetPostProcessFx((Config::ResPath + "/shaders/postpass.fsh").c_str());
-  SetColorPostFxVar(vec4(1, 1, 1, 1));
+  // SetPostProcessFx((Global::ResPath + "/shaders/postpass.fsh").c_str());
+  // SetColorPostFxVar(vec4(1, 1, 1, 1));
 
-  SetBackgroundColor(SColour(0x0C, 0x0C, 0x0C, 0xFF));
+  // SetBackgroundColor(Color(0x0C, 0x0C, 0x0C, 0xFF));
 
   GVars::load(*this);
 }

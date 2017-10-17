@@ -3,5 +3,8 @@
 #include <glm/glm.hpp>
 
 namespace NHTV {
-struct Material {};
+struct Material {
+  size_t texture;
+  size_t shader;
+};
 }

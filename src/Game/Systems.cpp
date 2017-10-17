@@ -1,7 +1,7 @@
 #include "Systems.hpp"
 #include "Game/Components.hpp"
 #include "Game/Factory.hpp"
-#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/compatibility.hpp>
 #include <glm/gtx/projection.hpp>
 
 /**
@@ -26,10 +26,10 @@ void HealthSystem::update(EntityManager &es, EventManager &ev, TimeDelta dt) {
 void CameraSystem::update(EntityManager &es, EventManager &ev, TimeDelta dt) {
   es.each<TransformCmp, CameraCmp>(
       [&](Entity e, TransformCmp &trx, CameraCmp &cam) {
-        angle += 100 * (float)dt * NHTV::DEG2RAD;
+        angle += glm::radians(100 * (float)dt);
         trx.rot = glm::angleAxis(angle, vec3(0, 0, 1));
-        cam.camera.position = trx.pos;
-        cam.camera.rotation = trx.rot;
+        // cam.camera.position = trx.pos;
+        // cam.camera.rotation = trx.rot;
       });
 }
 
@@ -98,7 +98,7 @@ void SpawnSystem::receive(const ExplosionEvent &e) {
                        [](Application &app, ParticleCmp::Particle &p) {
                          p.pos.first = vec3();
                          p.pos.second = p.pos.first;
-                         const float th = (rand() % 360) * DEG2RAD;
+                         const float th = glm::radians((float)(rand() % 360));
                          const float c0 = cos(th);
                          const float s0 = sin(th);
                          p.vel = vec3(c0 * (100 + (rand() % 900)),
@@ -113,7 +113,7 @@ void SpawnSystem::receive(const ExplosionEvent &e) {
                            p.pos.second.y = p.pos.first.y;
                            p.pos.first.x += p.vel.x * dt;
                            p.pos.first.y += p.vel.y * dt;
-                           p.color.argb.colours.a = sqrt(p.life * 2.f) * 255;
+                           p.color.a(sqrt(p.life * 2.f) * 255);
                          }
                        },
                        150);
@@ -141,22 +141,21 @@ void SpawnSystem::receive(const EntityRemovedEvent &e) {
 void SpawnSystem::receive(const GameResetEvent &e) {
   m_entities.reset();
 
-  int screenWidth;
-  int screenHeight;
-  m_app.GetScreenSize(screenWidth, screenHeight);
+  int sw;
+  int sh;
+  Engine::GetWindow().getWindowSize(sw, sh);
 
   auto camEnt = Factory::newCamera(m_entities, vec3(0, 0, 1), quat(), m_app);
-  auto camera = camEnt.component<CameraCmp>()->camera;
-  camera.orthographic(0.f, (float)screenWidth, 0.f, (float)screenHeight, 0.01f,
-                      1000.f);
+  // auto camera = camEnt.component<CameraCmp>()->camera;
+  // camera.orthographic(0.f, (float)screenWidth, 0.f, (float)screenHeight,
+  // 0.01f, 1000.f);
 
   // Spawn bg particles
-  Factory::newParticle(m_entities, m_app,
-                       vec3(screenWidth * 0.5f, screenHeight * 0.5f, 0),
+  Factory::newParticle(m_entities, m_app, vec3(sw * 0.5f, sh * 0.5f, 0),
                        ParticleCmp::LOOP, 0,
                        [](Application &app, ParticleCmp::Particle &p) {
-                         int sw, sh;
-                         app.GetScreenSize(sw, sh);
+                         int sw = 0, sh = 0;
+                         Engine::GetWindow().getWindowSize(sw, sh);
                          p.pos.first = vec3((rand() % sw) - sw * 0.5f, sh, 0);
                          // std::cout << p.pos.first.x << ", " << p.pos.first.y
                          // << "\n";
@@ -172,13 +171,13 @@ void SpawnSystem::receive(const GameResetEvent &e) {
                            p.pos.second.y = p.pos.first.y;
                            p.pos.first.x += p.vel.x * dt;
                            p.pos.first.y += p.vel.y * dt;
-                           p.color.argb.colours.a = p.life * 255;
+                           p.color.a(p.life * 255);
                          }
                        },
                        500);
 
   // Spawn player
-  Factory::newPlayer(m_entities, vec3(screenWidth * 0.5f, 64, 0), 3);
+  Factory::newPlayer(m_entities, vec3(sw * 0.5f, 64, 0), 3);
 
   const float speed[6] = {100, 50, 50, 0, 0, 0};
   const uint points[6] = {100, 50, 50, 10, 10, 10};
@@ -198,42 +197,45 @@ void SpawnSystem::receive(const GameResetEvent &e) {
  * @brief PlayerSystem
  */
 void PlayerSystem::update(EntityManager &es, EventManager &ev, TimeDelta dt) {
-  int screenWidth;
-  int screenHeight;
-  m_app.GetScreenSize(screenWidth, screenHeight);
+  int sw = 0, sh = 0;
+  Engine::GetWindow().getWindowSize(sw, sh);
 
-  es.each<TransformCmp, PhysicsCmp, HealthCmp, SpriteCmp, PlayerCmp>([=, &es](
-      Entity e, TransformCmp &trx, PhysicsCmp &phs, HealthCmp &hth,
-      SpriteCmp &spr, PlayerCmp &player) {
-    m_player = e;
+  es.each<TransformCmp, PhysicsCmp, HealthCmp, SpriteCmp, PlayerCmp>(
+      [=, &es](Entity e, TransformCmp &trx, PhysicsCmp &phs, HealthCmp &hth,
+               SpriteCmp &spr, PlayerCmp &player) {
+        m_player = e;
 
-    if (m_app.IsKeyDown(KEY_RIGHT)) {
-      player.erot.z -= 500.f * dt * DEG2RAD;
-    } else if (m_app.IsKeyDown(KEY_LEFT)) {
-      player.erot.z += 500.f * dt * DEG2RAD;
-    }
+        //    if (m_app.IsKeyDown(KEY_RIGHT)) {
+        //      player.erot.z -= 500.f * dt * DEG2RAD;
+        //    } else if (m_app.IsKeyDown(KEY_LEFT)) {
+        //      player.erot.z += 500.f * dt * DEG2RAD;
+        //    }
 
-    player.erot.z =
-        player.erot.z > 90 ? 90 : player.erot.z < -90 ? -90 : player.erot.z;
-    player.erot.z = Lerp(player.erot.z, 0, 10.f * dt);
-    trx.rot = quat(player.erot);
+        player.erot.z =
+            player.erot.z > 90 ? 90 : player.erot.z < -90 ? -90 : player.erot.z;
+        // player.erot.z = lerp(player.erot.z, 0.f, 10.f * dt);
+        trx.rot = quat(player.erot);
 
-    player.forward = trx.rot * vec3(0, 1, 0);
-    phs.vel = proj(player.forward, vec3(1, 0, 0)) * player.speed;
+        player.forward = trx.rot * vec3(0, 1, 0);
+        phs.vel = proj(player.forward, vec3(1, 0, 0)) * player.speed;
 
-    player.fireTimer += dt;
-    if (m_app.IsKeyDown(KEY_SPACE) && player.fireTimer >= player.fireRate) {
-      player.fireTimer = 0;
-      Factory::newBullet(es, trx.pos + (player.forward * 8.f), trx.rot,
-                         player.forward * 1000.f, GVars::bulletSpr, 0x00FF00FF,
-                         GVars::bulletRadius, GVars::playerBulletMask, 1);
-    }
+        player.fireTimer += dt;
+        //    if (m_app.IsKeyDown(KEY_SPACE) && player.fireTimer >=
+        //    player.fireRate) {
+        //      player.fireTimer = 0;
+        //      Factory::newBullet(es, trx.pos + (player.forward * 8.f),
+        //      trx.rot,
+        //                         player.forward * 1000.f, GVars::bulletSpr,
+        //                         0x00FF00FF,
+        //                         GVars::bulletRadius, GVars::playerBulletMask,
+        //                         1);
+        //    }
 
-    if (trx.pos.x < 0)
-      trx.pos.x = 0;
-    else if (trx.pos.x > screenWidth)
-      trx.pos.x = screenWidth;
-  });
+        if (trx.pos.x < 0)
+          trx.pos.x = 0;
+        else if (trx.pos.x > sw)
+          trx.pos.x = sw;
+      });
 }
 
 void PlayerSystem::receive(const EntityRemovedEvent &e) {
@@ -276,9 +278,8 @@ void PlayerSystem::receive(const PowerDisableEvent &e) {
  * @brief EnemySystem
  */
 void EnemySystem::update(EntityManager &es, EventManager &ev, TimeDelta dt) {
-  int screenWidth;
-  int screenHeight;
-  m_app.GetScreenSize(screenWidth, screenHeight);
+  int sw = 0, sh = 0;
+  Engine::GetWindow().getWindowSize(sw, sh);
 
   uint numEnemies = 0;
   uint idleEnemies = 0;
@@ -291,20 +292,20 @@ void EnemySystem::update(EntityManager &es, EventManager &ev, TimeDelta dt) {
       idleEnemies++;
       if (trx.pos.x < 0)
         m_groupDir = 1;
-      else if (trx.pos.x > screenWidth)
+      else if (trx.pos.x > sw)
         m_groupDir = -1;
 
     } else {
-      if (trx.pos.y < 0 || trx.pos.y > screenHeight) {
+      if (trx.pos.y < 0 || trx.pos.y > sh) {
         enemy.state = EnemyCmp::GROUPING;
-        trx.pos.y = screenHeight;
+        trx.pos.y = sh;
       }
     }
   });
 
   if (idleEnemies == 0) {
-    m_groupPos.x = screenWidth * 0.5f;
-    m_groupPos.y = screenHeight * 0.5f;
+    m_groupPos.x = sw * 0.5f;
+    m_groupPos.y = sh * 0.5f;
   }
 
   if (numEnemies > 0) {
@@ -364,9 +365,8 @@ void EnemySystem::update(EntityManager &es, EventManager &ev, TimeDelta dt) {
         enemy.state = EnemyCmp::GROUPING;
       }
 
-      const vec3 origin =
-          vec3((screenWidth * 0.5f) - enemy.idxPos.x * 32,
-               (screenHeight * 0.5f) - 64 - enemy.idxPos.y * 32, 0);
+      const vec3 origin = vec3((sw * 0.5f) - enemy.idxPos.x * 32,
+                               (sh * 0.5f) - 64 - enemy.idxPos.y * 32, 0);
 
       const vec3 dir2Player =
           playerTrx ? normalize(playerTrx->pos - trx.pos) : vec3();
@@ -412,11 +412,10 @@ void EnemySystem::update(EntityManager &es, EventManager &ev, TimeDelta dt) {
 }
 
 void EnemySystem::receive(const GameResetEvent &e) {
-  int screenWidth;
-  int screenHeight;
-  m_app.GetScreenSize(screenWidth, screenHeight);
-  m_groupPos.x = screenWidth * 0.5f;
-  m_groupPos.y = screenHeight * 0.5f;
+  int sw = 0, sh = 0;
+  Engine::GetWindow().getWindowSize(sw, sh);
+  m_groupPos.x = sw * 0.5f;
+  m_groupPos.y = sh * 0.5f;
 }
 
 /**
@@ -495,12 +494,11 @@ void PowerUpSystem::receive(const PowerDisableEvent &e) {
 void BulletSystem::update(EntityManager &es, EventManager &ev, TimeDelta dt) {
   es.each<TransformCmp, BulletCmp>(
       [=](Entity e, TransformCmp &trx, BulletCmp &bullet) {
-        int screenWidth;
-        int screenHeight;
-        m_app.GetScreenSize(screenWidth, screenHeight);
+        int sw = 0, sh = 0;
+        Engine::GetWindow().getWindowSize(sw, sh);
 
         // Remove if outside bounds
-        if (trx.pos.y < 0 || trx.pos.y > screenHeight)
+        if (trx.pos.y < 0 || trx.pos.y > sh)
           e.destroy();
       });
 }
@@ -536,9 +534,8 @@ void BulletSystem::receive(const CollisionEvent &e) {
  * @brief MenuSystem
  */
 void MenuSystem::update(EntityManager &es, EventManager &ev, TimeDelta dt) {
-  int screenWidth;
-  int screenHeight;
-  m_app.GetScreenSize(screenWidth, screenHeight);
+  int sw = 0, sh = 0;
+  Engine::GetWindow().getWindowSize(sw, sh);
 
   // m_app.SetFont("../resources/fonts/invaders.json.fnt");
   // m_app.DrawString("1UP", (screenWidth * 0.01f), screenHeight - 5, 1);
@@ -551,7 +548,7 @@ void MenuSystem::update(EntityManager &es, EventManager &ev, TimeDelta dt) {
   // m_app.DrawString(std::to_string(m_highscore).c_str(), (screenWidth * 0.9f)
   // - 100, screenHeight - 30, 1);
 
-  m_app.DrawLine(0, 40, screenWidth, 40, 0xFCFCFCFF);
+  // m_app.DrawLine(0, 40, screenWidth, 40, 0xFCFCFCFF);
   // m_app.DrawString("CREDITS: 0", (screenWidth * 0.9f) - 100,
   // 38);
 
@@ -594,8 +591,8 @@ void ParticleSystem::update(EntityManager &es, EventManager &ev, TimeDelta dt) {
           pB.x = p.pos.second.x / p.zdepth;
           pB.y = p.pos.second.y / p.zdepth;
 
-          m_app.DrawLine(trx.pos.x + pA.x, trx.pos.y + pA.y, trx.pos.x + pB.x,
-                         trx.pos.y + pB.y, p.color);
+          // m_app.DrawLine(trx.pos.x + pA.x, trx.pos.y + pA.y, trx.pos.x +
+          // pB.x, trx.pos.y + pB.y, p.color);
         }
 
         if (allDead && psc.mode == ParticleCmp::ONCE) {
@@ -608,35 +605,36 @@ void ParticleSystem::update(EntityManager &es, EventManager &ev, TimeDelta dt) {
  * @brief SpriteSystem
  */
 void SpriteSystem::update(EntityManager &es, EventManager &ev, TimeDelta dt) {
-  es.each<TransformCmp, SpriteCmp>(
-      [=](Entity e, TransformCmp &trx, SpriteCmp &spr) {
-        for (uint handle : spr.handles) {
-          m_app.RotateSprite(handle, trx.rot);
-          m_app.MoveSprite(handle, trx.pos.x, trx.pos.y);
-          m_app.SetSpriteColour(handle, spr.color);
-          m_app.DrawSprite(handle);
-        }
-      });
+  //  es.each<TransformCmp, SpriteCmp>(
+  //      [=](Entity e, TransformCmp &trx, SpriteCmp &spr) {
+  //        for (uint handle : spr.handles) {
+  //          m_app.RotateSprite(handle, trx.rot);
+  //          m_app.MoveSprite(handle, trx.pos.x, trx.pos.y);
+  //          m_app.SetSpriteColour(handle, spr.color);
+  //          m_app.DrawSprite(handle);
+  //        }
+  //      });
 }
 
 /**
  * @brief TextSystem
  */
 void TextSystem::update(EntityManager &es, EventManager &ev, TimeDelta dt) {
-  es.each<TransformCmp, TextCmp>(
-      [=](Entity e, TransformCmp &trx, TextCmp &txt) {
-        m_app.DrawString(txt.textStr.c_str(), trx.pos.x, trx.pos.y,
-                         txt.fontSize, txt.color);
-      });
+  //  es.each<TransformCmp, TextCmp>(
+  //      [=](Entity e, TransformCmp &trx, TextCmp &txt) {
+  //        m_app.DrawString(txt.textStr.c_str(), trx.pos.x, trx.pos.y,
+  //                         txt.fontSize, txt.color);
+  //      });
 }
 
 /**
  * @brief LineSystem
  */
 void LineSystem::update(EntityManager &es, EventManager &ev, TimeDelta dt) {
-  es.each<TransformCmp, LineCmp>(
-      [=](Entity e, TransformCmp &trx, LineCmp &lin) {
-        m_app.DrawLine(trx.pos.x + lin.pA.x, trx.pos.y + lin.pA.y,
-                       trx.pos.x + lin.pB.x, trx.pos.y + lin.pB.y, lin.color);
-      });
+  //  es.each<TransformCmp, LineCmp>(
+  //      [=](Entity e, TransformCmp &trx, LineCmp &lin) {
+  //        m_app.DrawLine(trx.pos.x + lin.pA.x, trx.pos.y + lin.pA.y,
+  //                       trx.pos.x + lin.pB.x, trx.pos.y + lin.pB.y,
+  //                       lin.color);
+  //      });
 }

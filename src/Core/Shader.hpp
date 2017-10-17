@@ -11,7 +11,7 @@
 using namespace glm;
 
 namespace NHTV {
-class Shader : public NonCopyable {
+class Shader {
 public:
   struct Params {
     std::string vert;
@@ -21,7 +21,7 @@ public:
 public:
   void configure(const Params &params);
 
-  void load(const std::string &filename);
+  void load(const std::string &vertfile, const std::string &fragfile);
 
   void bind();
 

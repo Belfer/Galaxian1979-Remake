@@ -27,21 +27,14 @@ public:
 
   void configure();
   void update();
-  void draw();
+  void draw(const Camera &camera, const Material &material);
   void clear();
 
 private:
   Renderer &m_renderer;
-  Mesh m_mesh;
+  size_t m_meshId;
+  Mesh *m_meshPtr;
+
   std::vector<Quad> m_quads;
 };
-
-inline void SpriteBatch::update() { m_mesh.update(); }
-
-inline void SpriteBatch::draw() { m_mesh.draw(); }
-
-inline void SpriteBatch::clear() {
-  m_mesh.clear();
-  m_quads.clear();
-}
 }

@@ -1,9 +1,12 @@
 #include "Engine.hpp"
 #include "Global.hpp"
+#include "Thread.hpp"
+#include "Timer.hpp"
 #include "Util.hpp"
-#include "Window.hpp"
 #include <assert.h>
+#include <chrono>
 #include <json.hpp>
+#include <thread>
 
 using namespace NHTV;
 using json = nlohmann::json;
@@ -22,18 +25,65 @@ int Engine::run(int argc, char **args, Application *app) {
   config.width = appData["width"];
   config.height = appData["height"];
 
-  Window window(config);
+  m_pWindow = new Window(config);
+  m_pRenderer = new Renderer();
+
+  // Create a timer to track the elapsed time
+  HiResTimer frameTimer;
+  frameTimer.reset();
+
+  NanoTime elapsed;
+  NanoTime carry;
+  NanoTime diff;
+  const NanoTime frameTime = NanoTime(SecTime(1.0 / 60.0));
 
   app->init(argc, args);
-  while (!window.shouldClose() && m_running) {
-    window.pollEvents();
 
-    app->update(0.0166f);
-    app->draw(0.0166f);
+  // Start the game loop
+  while (!m_pWindow->shouldClose() && m_running) {
+    elapsed = frameTimer.elapsed<Nano>(); // + carry;
+    frameTimer.reset();
+    // carry = NanoTime(0);
+    if (elapsed < frameTime) {
+      diff = frameTime - elapsed;
+
+      // frameTimer.reset();
+      Thread::sleep(diff);
+
+      //      elapsed = frameTimer.elapsed<Nano>();
+      //      if (elapsed > diff) {
+      //        carry = elapsed - diff;
+      //        if (carry > frameTime)
+      //          carry = frameTime;
+      //      }
+    }
+    // frameTimer.reset();
+
+    app->update(SecTime(elapsed).count());
+
+    glClearColor(0.1, 0.1, 0.1, 1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // app->pre_draw();
+
+    int w = 0, h = 0;
+    GetWindow().getWindowSize(w, h);
+    for (auto &e : GetRenderer().m_cameraMap) {
+      e.second.update(w, h);
+      const auto &vp = e.second.getViewport();
+      glViewport(vp.x * w, vp.y * h, vp.z * w, vp.w * h);
+
+      app->draw(e.second, SecTime(elapsed).count());
+    }
+
+    // app->post_draw();
+
     app->editor();
 
-    window.display();
+    m_pWindow->display();
+    m_pWindow->pollEvents();
   }
+
   app->close();
 
   return 0;

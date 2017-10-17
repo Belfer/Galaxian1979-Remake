@@ -4,16 +4,50 @@
 #include "Core/Mesh.hpp"
 #include "Core/Shader.hpp"
 #include "Core/Texture.hpp"
+#include <entityx/entityx.h>
 
 using namespace NHTV;
+using namespace entityx;
 
-class GalaxianEditor : public Application {
+class GalaxianEditor : public Application,
+                       public EntityX,
+                       public Receiver<GalaxianEditor> {
 protected:
   virtual bool init(int argc, char **args) override;
+  virtual void fixed(float dt) override;
   virtual void update(float dt) override;
-  virtual void draw(float dt) override;
+  virtual void draw(Camera &camera, float dt) override;
   virtual void editor() override;
   virtual void close() override;
+
+  template <typename T> inline void regProfileSys(const std::string &name) {
+    systems.add<T>(*this, entities, events, systems);
+    m_profiles.emplace_back(ProfileEntry(name));
+  }
+
+  template <typename T> inline void updateProfileSys(size_t i, float dt) {
+    float t = glfwGetTime();
+    systems.update<T>(dt);
+    m_profiles[i].frameTime = glfwGetTime() - t;
+  }
+
+private:
+  bool m_profiler = true;
+  bool m_editor = true;
+
+  int m_polymode = 0;
+
+  float m_fpsTimer = 0;
+  uint m_fps = 0;
+  std::string m_fpsStr = "";
+
+  struct ProfileEntry {
+    ProfileEntry(const std::string &name) : name(name) {}
+    const std::string name;
+    float frameTime = 0;
+    std::string frameTimeStr = "";
+  };
+  std::vector<ProfileEntry> m_profiles;
 };
 
 /*#include "Game/Events.hpp"

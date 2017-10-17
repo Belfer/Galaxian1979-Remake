@@ -14,7 +14,7 @@ public:
   void orthographic(float left, float right, float bottom, float top,
                     float znear, float zfar);
 
-  void update();
+  void update(int width, int height);
 
   inline bool isActive() const { return m_active; }
   inline void setActive(bool active) { m_active = active; }

@@ -12,7 +12,7 @@
 #include <vector>
 
 namespace NHTV {
-class Mesh : public NonCopyable {
+class Mesh {
 public:
   enum MeshMode {
     STATIC = GL_STATIC_DRAW,

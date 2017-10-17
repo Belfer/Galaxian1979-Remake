@@ -8,112 +8,220 @@
 #include <imgui.h>
 #include <iostream>
 
+struct Ent {
+  vec4 col = vec4();
+  vec2 pos = vec2();
+  vec2 vel = vec2();
+  float rot = 0;
+  float trq = 0;
+  float scl = 1;
+};
+
+#define NUM_ENTS 500
+Ent ents[NUM_ENTS];
+
 using namespace glm;
 
-Texture texture;
-Shader shader;
-Mesh mesh;
-
-Renderer renderer;
-SpriteBatch spriteBatch(renderer);
-
-mat4x4 modelview;
-mat4x4 projection;
-
-float t = 0;
+Material material;
+SpriteBatch *pSpriteBatch;
 
 bool GalaxianEditor::init(int argc, char **args) {
-  const float hw = 768.0f * 0.5f;
-  const float hh = 768.0f * 0.5f;
-  projection = glm::ortho(-hw, hw, -hh, hh, 1.f, 100.f);
-  modelview = glm::translate(vec3(0, 0, -1)) * glm::scale(vec3(hw, hh, 1));
+  // Setup ImGui binding
+  ImGui_ImplGlfwGL3_Init(Engine::GetWindow().getPtr(), true);
 
-  // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glEnable(GL_BLEND);
+  int w = 0, h = 0;
+  Engine::GetWindow().getWindowSize(w, h);
 
-  glEnable(GL_DEPTH_TEST);
-  glEnable(GL_DEPTH_CLAMP);
-  glEnable(GL_MULTISAMPLE);
+  // Setup camera
+  size_t cameraId = Engine::GetRenderer().newCamera();
+  Camera &camera = Engine::GetRenderer().getCamera(cameraId);
 
-  glEnable(GL_CULL_FACE);
-  glCullFace(GL_BACK);
-  glFrontFace(GL_CCW);
+  const float hw = w * 0.5f;
+  const float hh = h * 0.5f;
+  camera.orthographic(-hw, hw, -hh, hh, 1.f, 100.f);
+  camera.setViewSize(vec2(w, h));
+
+  // Setup texture
+  material.texture = Engine::GetRenderer().newTexture();
+  Texture &texture = Engine::GetRenderer().getTexture(material.texture);
 
   texture.load(Global::ResPath + "/images/invader.png", Texture::RGBA);
+  texture.setMipmapFilter(Texture::NEAREST_MIPMAP_NEAREST);
   texture.setSampleFilter(Texture::NEAREST);
 
-  shader.load(Global::ResPath + "/shaders/sprite");
+  // Setup shader
+  material.shader = Engine::GetRenderer().newShader();
+  Shader &shader = Engine::GetRenderer().getShader(material.shader);
 
-  Vertex v1, v2, v3, v4;
+  shader.load(Global::ResPath + "/shaders/sprite.vert",
+              Global::ResPath + "/shaders/sprite.frag");
 
-  v1.position = vec4(0.5f, 0.5f, 0.0f, 1.0f);
-  v1.color = vec4(0.0f, 1.0f, 1.0f, 1.0f);
-  v1.texcoord = vec2(1.0f, 1.0f);
+  // Setup sprite batch
+  pSpriteBatch = new SpriteBatch(Engine::GetRenderer(), NUM_ENTS);
+  pSpriteBatch->configure();
 
-  v2.position = vec4(0.5f, -0.5f, 0.0f, 1.0f);
-  v2.color = vec4(1.0f, 0.0f, 1.0f, 1.0f);
-  v2.texcoord = vec2(1.0f, 0.0f);
+  for (auto &ent : ents) {
+    ent.col = vec4((rand() % 100) / 100.f, (rand() % 100) / 100.f,
+                   (rand() % 100) / 100.f, (rand() % 100) / 100.f);
+    ent.pos = vec2((rand() % 768) - 384, (rand() % 768) - 384);
+    ent.vel = vec2(cos(rand() % 360) * 1000, sin(rand() % 360) * 1000);
+    ent.trq = (float)(rand() % 100);
+    ent.scl = 1 + (rand() % 5) / 5.f;
+  }
 
-  v3.position = vec4(-0.5f, -0.5f, 0.0f, 1.0f);
-  v3.color = vec4(1.0f, 1.0f, 0.0f, 1.0f);
-  v3.texcoord = vec2(0.0f, 0.0f);
+  // Add systems
+  //  const size_t numSys = 15;
+  //  m_profiles.reserve(numSys);
 
-  v4.position = vec4(-0.5f, 0.5f, 0.0f, 1.0f);
-  v4.color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-  v4.texcoord = vec2(0.0f, 1.0f);
+  //  regProfileSys<HealthSystem>("HealthSystem");
+  //  regProfileSys<CameraSystem>("CameraSystem");
+  //  regProfileSys<PhysicsSystem>("PhysicsSystem");
+  //  regProfileSys<CollisionSystem>("CollisionSystem");
+  //  regProfileSys<PlayerSystem>("PlayerSystem");
+  //  regProfileSys<EnemySystem>("EnemySystem");
+  //  regProfileSys<BulletSystem>("BulletSystem");
+  //  regProfileSys<PowerUpSystem>("PowerUpSystem");
+  //  regProfileSys<SpawnSystem>("SpawnSystem");
 
-  uint i1 = mesh.addVertex(v1);
-  uint i2 = mesh.addVertex(v2);
-  uint i3 = mesh.addVertex(v3);
-  uint i4 = mesh.addVertex(v4);
+  //  regProfileSys<MenuSystem>("MenuSystem");
+  //  regProfileSys<ParticleSystem>("ParticleSystem");
+  //  regProfileSys<SpriteSystem>("SpriteSystem");
+  //  regProfileSys<TextSystem>("TextSystem");
+  //  regProfileSys<LineSystem>("LineSystem");
+  //  regProfileSys<DebugSystem>("DebugSystem");
+  //  systems.configure();
 
-  mesh.addTriangle(i1, i4, i2);
-  mesh.addTriangle(i3, i2, i4);
-
-  spriteBatch.configure();
   return true;
 }
 
-void GalaxianEditor::update(float dt) {
-  t += dt;
-  // modelview = glm::translate(vec3(t*0.01f, 0, 0));
-
-  spriteBatch.clear();
-  for (int i = 0; i < 10; ++i) {
-    for (int j = 0; j < 10; ++j) {
-      spriteBatch.drawSprite(
-          vec4(-16, -16, 16, 16), vec4(0, 0, 1, 1),
-          vec4((rand() % 100) / 100.f, (rand() % 100) / 100.f,
-               (rand() % 100) / 100.f, (rand() % 100) / 100.f),
-          glm::translate(vec3(cos(t) * (rand() % 160) + (38.4f * (i - 4)) - 16,
-                              sin(t) * (rand() % 160) + (38.4f * (j - 4)) - 16,
-                              -5)));
-    }
-  }
-  spriteBatch.update();
-  mesh.update();
+void GalaxianEditor::fixed(float dt) {
+  // std::cout << dt << "f\n";
 }
 
-void GalaxianEditor::draw(float dt) {
-  glClearColor(0.1, 0.1, 0.1, 1);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+const vec4 spriteRct(-16, -16, 16, 16);
+const vec4 spriteUVs(0, 0, 1, 1);
+mat4x4 modelview;
+float t = 0;
 
-  texture.bind();
+void GalaxianEditor::update(float dt) {
+  // std::cout << dt << "u\n\n";
+  t += dt;
 
-  shader.setMat4x4("Projection", projection);
-  shader.setMat4x4("ModelView", mat4x4{1});
-  shader.bind();
-  spriteBatch.draw();
+  float p = glfwGetTime();
+  pSpriteBatch->clear();
+  for (auto &ent : ents) {
+    ent.pos += ent.vel * dt;
+    ent.rot += ent.trq * dt;
 
-  shader.setMat4x4("Projection", projection);
-  shader.setMat4x4("ModelView", modelview);
-  shader.bind();
-  mesh.draw();
+    if (ent.pos.x < -384)
+      ent.pos.x = 384;
+    else if (ent.pos.x > 384)
+      ent.pos.x = -384;
+    if (ent.pos.y < -384)
+      ent.pos.y = 384;
+    else if (ent.pos.y > 384)
+      ent.pos.y = -384;
+
+    modelview = glm::translate(vec3(ent.pos.x, ent.pos.y, -5)) *
+                glm::rotate(ent.rot, vec3(0.f, 0.f, 1.f)) *
+                glm::scale(vec3(ent.scl));
+    pSpriteBatch->drawSprite(spriteRct, spriteUVs, ent.col, modelview);
+  }
+  pSpriteBatch->update();
+  std::cout << (100 * (glfwGetTime() - p) / (1 / 60.f)) << "\n";
+
+  // Calculate FPS
+  m_fps++;
+  m_fpsTimer += dt;
+  if (m_fpsTimer >= 1.f) {
+    //    for (auto &p : m_profiles) {
+    //      p.frameTimeStr = std::to_string(p.frameTime * 60 * 100);
+    //    }
+
+    m_fpsTimer -= 1.f;
+    m_fpsStr = std::to_string(m_fps);
+    m_fps = 0;
+  }
+
+  // Update and profile logic systems
+  //  updateProfileSys<HealthSystem>(0, dt);
+  //  updateProfileSys<CameraSystem>(1, dt);
+  //  updateProfileSys<PhysicsSystem>(2, dt);
+  //  updateProfileSys<CollisionSystem>(3, dt);
+  //  updateProfileSys<PlayerSystem>(4, dt);
+  //  updateProfileSys<EnemySystem>(5, dt);
+  //  updateProfileSys<BulletSystem>(6, dt);
+  //  updateProfileSys<PowerUpSystem>(7, dt);
+  //  updateProfileSys<SpawnSystem>(8, dt);
+}
+
+void GalaxianEditor::draw(Camera &camera, float dt) {
+  pSpriteBatch->draw(camera, material);
+
+  // Update and profile render systems
+  //  updateProfileSys<MenuSystem>(9, dt);
+  //  updateProfileSys<ParticleSystem>(10, dt);
+  //  updateProfileSys<SpriteSystem>(11, dt);
+  //  updateProfileSys<TextSystem>(12, dt);
+  //  updateProfileSys<LineSystem>(13, dt);
+  //  if (m_debbuging)
+  //    updateProfileSys<DebugSystem>(14, dt);
 }
 
 void GalaxianEditor::editor() {
-  //
+  ImGui_ImplGlfwGL3_NewFrame();
+
+  ImGui::BeginMainMenuBar();
+
+  if (ImGui::BeginMenu("File")) {
+    ImGui::Text("New Scene");
+    ImGui::Text("Load Scene");
+    ImGui::EndMenu();
+  }
+  if (ImGui::BeginMenu("Edit")) {
+    ImGui::Text("Undo");
+    ImGui::Text("Redo");
+    ImGui::Text("Cut");
+    ImGui::Text("Copy");
+    ImGui::Text("Paste");
+    ImGui::EndMenu();
+  }
+  if (ImGui::BeginMenu("View")) {
+    ImGui::Checkbox("Profiler", &m_profiler);
+    ImGui::Checkbox("Editor", &m_editor);
+    ImGui::EndMenu();
+  }
+  if (ImGui::BeginMenu("Settings")) {
+    ImGui::Text("- PolyMode -");
+    if (ImGui::RadioButton("Filled", &m_polymode, 0)) {
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      glEnable(GL_BLEND);
+    }
+    if (ImGui::RadioButton("Wired", &m_polymode, 1)) {
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+      glDisable(GL_BLEND);
+    }
+    ImGui::EndMenu();
+  }
+
+  ImGui::EndMainMenuBar();
+
+  if (m_profiler) {
+    ImGui::Begin("- Profiler -");
+    ImGui::Text("- Stats -");
+    ImGui::Text(("FPS: " + m_fpsStr).c_str());
+    for (auto p : m_profiles) {
+      ImGui::Text((p.name + ": " + p.frameTimeStr).c_str());
+    }
+    ImGui::End();
+  }
+
+  if (m_editor) {
+    ImGui::Begin("- Editor -");
+    ImGui::End();
+  }
+
+  ImGui::Render();
 }
 
 void GalaxianEditor::close() {
@@ -299,52 +407,4 @@ void GalaxianEditor::load() {
   SetBackgroundColor(SColour(0x0C, 0x0C, 0x0C, 0xFF));
 
   GVars::load(*this);
-}
-
-void GalaxianEditor::addSystems() {
-  // Add systems
-  const size_t numSys = 15;
-  m_profiles.reserve(numSys);
-
-  regProfileSys<HealthSystem>("HealthSystem");
-  regProfileSys<CameraSystem>("CameraSystem");
-  regProfileSys<PhysicsSystem>("PhysicsSystem");
-  regProfileSys<CollisionSystem>("CollisionSystem");
-  regProfileSys<PlayerSystem>("PlayerSystem");
-  regProfileSys<EnemySystem>("EnemySystem");
-  regProfileSys<BulletSystem>("BulletSystem");
-  regProfileSys<PowerUpSystem>("PowerUpSystem");
-  regProfileSys<SpawnSystem>("SpawnSystem");
-
-  regProfileSys<MenuSystem>("MenuSystem");
-  regProfileSys<ParticleSystem>("ParticleSystem");
-  regProfileSys<SpriteSystem>("SpriteSystem");
-  regProfileSys<TextSystem>("TextSystem");
-  regProfileSys<LineSystem>("LineSystem");
-  regProfileSys<DebugSystem>("DebugSystem");
-  systems.configure();
-}
-
-void GalaxianEditor::updateSystems(float dt) {
-  // Update and profile logic systems
-  updateProfileSys<HealthSystem>(0, dt);
-  updateProfileSys<CameraSystem>(1, dt);
-  updateProfileSys<PhysicsSystem>(2, dt);
-  updateProfileSys<CollisionSystem>(3, dt);
-  updateProfileSys<PlayerSystem>(4, dt);
-  updateProfileSys<EnemySystem>(5, dt);
-  updateProfileSys<BulletSystem>(6, dt);
-  updateProfileSys<PowerUpSystem>(7, dt);
-  updateProfileSys<SpawnSystem>(8, dt);
-}
-
-void GalaxianEditor::renderSystems(float dt) {
-  // Update and profile render systems
-  updateProfileSys<MenuSystem>(9, dt);
-  updateProfileSys<ParticleSystem>(10, dt);
-  updateProfileSys<SpriteSystem>(11, dt);
-  updateProfileSys<TextSystem>(12, dt);
-  updateProfileSys<LineSystem>(13, dt);
-  if (m_debbuging)
-    updateProfileSys<DebugSystem>(14, dt);
 }*/

@@ -8,7 +8,7 @@
 #include <string>
 
 namespace NHTV {
-class Texture : public NonCopyable {
+class Texture {
 public:
   enum WrapMode {
     REPEAT = GL_REPEAT,
