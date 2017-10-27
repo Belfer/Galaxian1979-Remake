@@ -9,5 +9,7 @@ compile_commands.json
 CTestTestfile.cmake
 CMakeLists.txt.user
 build
+.vs
+CMakeSettings.json
 
 extern/portaudio
