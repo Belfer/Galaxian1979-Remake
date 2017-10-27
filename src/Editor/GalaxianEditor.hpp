@@ -15,8 +15,15 @@ class GalaxianEditor : public Application,
 protected:
   virtual bool init(int argc, char **args) override;
   virtual void fixed(float dt) override;
+
+  virtual void pre_update(float dt) override;
   virtual void update(float dt) override;
+  virtual void post_update(float dt) override;
+
+  virtual void pre_draw(float dt) override;
   virtual void draw(Camera &camera, float dt) override;
+  virtual void post_draw(float dt) override;
+
   virtual void editor() override;
   virtual void close() override;
 
@@ -32,6 +39,13 @@ protected:
   }
 
 private:
+  Camera *m_pEditorCam;
+
+  size_t m_sprShader;
+  size_t m_sprTexture;
+
+  size_t m_lineShader;
+
   bool m_profiler = true;
   bool m_editor = true;
 

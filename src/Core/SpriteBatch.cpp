@@ -11,24 +11,28 @@ void addQuadToMesh(Mesh &mesh, const SpriteBatch::Quad &quad);
 
 SpriteBatch::SpriteBatch(Renderer &renderer, size_t size)
     : m_renderer(renderer) {
-  m_quads.reserve(size);
+  // m_quads.reserve(size);
   m_meshId = renderer.newMesh();
   m_meshPtr = &renderer.getMesh(m_meshId);
 }
 
+SpriteBatch::~SpriteBatch() {
+  m_renderer.removeMesh(m_meshId);
+  m_meshPtr = nullptr;
+}
+
 void SpriteBatch::configure() {
   Mesh::Params params;
+  params.meshType = Mesh::INDEXED;
   params.meshMode = Mesh::DYNAMIC;
+  params.drawMode = Mesh::TRIANGLES;
   m_meshPtr->configure(params);
 }
 
 void SpriteBatch::update() { m_meshPtr->update(); }
 
-void SpriteBatch::draw(const Camera &camera, const Material &material) {
+void SpriteBatch::draw(const Camera &camera, Texture &texture, Shader &shader) {
   glDisable(GL_DEPTH_TEST);
-
-  Texture &texture = m_renderer.getTexture(material.texture);
-  Shader &shader = m_renderer.getShader(material.shader);
 
   shader.setMat4x4("Projection", camera.getProjection());
   shader.setMat4x4("ModelView", camera.getView());
@@ -39,7 +43,7 @@ void SpriteBatch::draw(const Camera &camera, const Material &material) {
 
 void SpriteBatch::clear() {
   m_meshPtr->clear();
-  m_quads.clear();
+  // m_quads.clear();
 }
 
 void SpriteBatch::drawSprite(const vec4 &rct, const vec4 &uvs,
@@ -47,7 +51,7 @@ void SpriteBatch::drawSprite(const vec4 &rct, const vec4 &uvs,
   Quad quad;
   genQuad(quad, rct, uvs, color);
   addQuadToMesh(*m_meshPtr, quad);
-  m_quads.emplace_back(quad);
+  // m_quads.emplace_back(quad);
 }
 
 void SpriteBatch::drawSprite(const vec4 &rct, const vec4 &uvs,
@@ -56,7 +60,7 @@ void SpriteBatch::drawSprite(const vec4 &rct, const vec4 &uvs,
   genQuad(quad, rct, uvs, color);
   applyTrx(quad, trx);
   addQuadToMesh(*m_meshPtr, quad);
-  m_quads.emplace_back(quad);
+  // m_quads.emplace_back(quad);
 }
 
 void genQuad(SpriteBatch::Quad &quad, const vec4 &rct, const vec4 &uvs,

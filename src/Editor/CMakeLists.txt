@@ -3,6 +3,7 @@ set(EDITOR_HDRS
   "${CMAKE_CURRENT_SOURCE_DIR}/GalaxianEditor.hpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Systems.hpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/imgui_impl.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/imgui_style.h"
   PARENT_SCOPE
 )
 

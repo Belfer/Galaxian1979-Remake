@@ -12,6 +12,7 @@
 // https://github.com/ocornut/imgui
 
 #include "imgui_impl.h"
+#include "imgui_style.h"
 #include <glad/glad.h>
 #include <imgui.h>
 
@@ -420,6 +421,9 @@ bool ImGui_ImplGlfwGL3_Init(GLFWwindow *window, bool install_callbacks) {
     glfwSetKeyCallback(window, ImGui_ImplGlfwGL3_KeyCallback);
     glfwSetCharCallback(window, ImGui_ImplGlfwGL3_CharCallback);
   }
+
+  // Apply custom style
+  // ImGui_ApplyStyle();
 
   return true;
 }

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/Engine.hpp"
 #include "Core/Color.hpp"
+#include "Core/Engine.hpp"
 #include <entityx/entityx.h>
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -9,6 +9,13 @@
 using namespace NHTV;
 using namespace entityx;
 using namespace glm;
+
+struct EntityCmp {
+  EntityCmp(const std::string &name, const std::string &tag)
+      : name(name), tag(tag) {}
+  std::string name;
+  std::string tag;
+};
 
 /**
  * @brief The CameraCmp struct
@@ -38,14 +45,18 @@ struct TransformCmp {
  */
 struct PhysicsCmp {
   PhysicsCmp() {}
-  PhysicsCmp(const vec3 &vel, const vec3 &acc, float mass, const vec3 &force)
-      : vel(vel), acc(acc), mass(mass), force(force) {}
+  PhysicsCmp(const vec3 &vel, float trq,
+             float mass) //, const vec3 &acc, const vec3 &force)
+      : vel(vel),
+        trq(trq),
+        mass(mass) {} //, acc(acc), force(force) {}
 
   vec3 vel = vec3(0);
-  vec3 acc = vec3(0);
+  float trq = 0;
+  // vec3 acc = vec3(0);
 
   float mass = 0;
-  vec3 force = vec3(0);
+  // vec3 force = vec3(0);
 };
 
 /**
@@ -102,16 +113,25 @@ struct PowerCmp {
   PowerUp power = NONE;
 };
 
+struct MaterialCmp {
+  MaterialCmp() {}
+  MaterialCmp(size_t texture, size_t shader)
+      : texture(texture), shader(shader) {}
+  size_t texture;
+  size_t shader;
+};
+
 /**
  * @brief SpriteCmp, keeps handle of sprite ID
  */
 struct SpriteCmp {
-  SpriteCmp(uint handle, uint color) : color(color) {
-    handles.emplace_back(handle);
-  }
+  SpriteCmp() {}
+  SpriteCmp(const vec2 &origin, const vec2 &size, const vec4 &uv)
+      : origin(origin), size(size), uvRect(uvRect) {}
 
-  std::vector<uint> handles;
-  uint color;
+  vec2 origin = vec2(0, 0);
+  vec2 size = vec2(1, 1);
+  vec4 uvRect = vec4(0, 0, 1, 1);
 };
 
 /**

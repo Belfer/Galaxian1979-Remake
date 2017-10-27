@@ -78,17 +78,26 @@ void Renderer::removeMesh(size_t id) {
   // TODO
 }
 
-void Renderer::draw(size_t camera, size_t mesh, const Material &material) {
-  const Camera &cam = getCamera(camera);
-  const Mesh &msh = getMesh(mesh);
-  Texture &txt = getTexture(material.texture);
-  Shader &shr = getShader(material.shader);
+void Renderer::bindCamera(size_t id) {
+  // TODO assert
+  m_renderState.camera = id;
 }
 
-void Renderer::draw(const Camera &camera, const Mesh &mesh,
-                    const Material &material) {
-  Texture &txt = getTexture(material.texture);
-  Shader &shr = getShader(material.shader);
+void Renderer::bindTexture(size_t id) {
+  // TODO assert
+  m_renderState.texture = id;
+}
+
+void Renderer::bindShader(size_t id) {
+  // TODO assert
+  m_renderState.shader = id;
+}
+
+void Renderer::draw(IDrawable *pDrawable) {
+  const auto &camera = getCamera(m_renderState.camera);
+  auto &texture = getTexture(m_renderState.texture);
+  auto &shader = getShader(m_renderState.shader);
+  pDrawable->draw(camera, texture, shader);
 }
 
 bool Renderer::createFramebuffer(int width, int height) {

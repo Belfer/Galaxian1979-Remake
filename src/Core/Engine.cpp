@@ -31,52 +31,60 @@ int Engine::run(int argc, char **args, Application *app) {
   // Create a timer to track the elapsed time
   HiResTimer frameTimer;
   frameTimer.reset();
+  HiResTimer carryTimer;
+  carryTimer.reset();
 
   NanoTime elapsed;
-  NanoTime carry;
   NanoTime diff;
+  NanoTime carry;
   const NanoTime frameTime = NanoTime(SecTime(1.0 / 60.0));
+  const SecTime fixedTime = SecTime(1.0 / 120.0);
+
+  std::cout << std::fixed;
+  std::cout << std::setprecision(6);
 
   app->init(argc, args);
 
   // Start the game loop
   while (!m_pWindow->shouldClose() && m_running) {
-    elapsed = frameTimer.elapsed<Nano>(); // + carry;
+    std::cout << "Frame time: " << SecTime(frameTime).count() << "\n";
+
+    elapsed = frameTimer.elapsed<Nano>() + carry;
+    std::cout << "Elapsed: " << SecTime(elapsed).count() << "\n";
     frameTimer.reset();
-    // carry = NanoTime(0);
+    carry = NanoTime(0);
+
     if (elapsed < frameTime) {
       diff = frameTime - elapsed;
+      std::cout << "Difference: " << SecTime(diff).count() << "\n";
 
-      // frameTimer.reset();
+      carryTimer.reset();
       Thread::sleep(diff);
+      carry = diff - carryTimer.elapsed<Nano>();
+      carryTimer.reset();
 
-      //      elapsed = frameTimer.elapsed<Nano>();
-      //      if (elapsed > diff) {
-      //        carry = elapsed - diff;
-      //        if (carry > frameTime)
-      //          carry = frameTime;
-      //      }
+      // frameTimer += carry;
+      std::cout << "Carry: " << SecTime(carry).count() << "\n";
     }
-    // frameTimer.reset();
 
-    app->update(SecTime(elapsed).count());
+    app->fixed(fixedTime.count());
 
-    glClearColor(0.1, 0.1, 0.1, 1);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // app->pre_draw();
+    const float dt = SecTime(elapsed).count();
+    app->pre_update(dt);
+    app->update(dt);
+    app->post_update(dt);
 
     int w = 0, h = 0;
     GetWindow().getWindowSize(w, h);
+    glClearColor(0.1, 0.1, 0.1, 1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    app->pre_draw(dt);
     for (auto &e : GetRenderer().m_cameraMap) {
       e.second.update(w, h);
-      const auto &vp = e.second.getViewport();
-      glViewport(vp.x * w, vp.y * h, vp.z * w, vp.w * h);
-
-      app->draw(e.second, SecTime(elapsed).count());
+      app->draw(e.second, dt);
     }
-
-    // app->post_draw();
+    app->post_draw(dt);
 
     app->editor();
 
@@ -85,6 +93,9 @@ int Engine::run(int argc, char **args, Application *app) {
   }
 
   app->close();
+
+  delete m_pWindow;
+  delete m_pRenderer;
 
   return 0;
 }

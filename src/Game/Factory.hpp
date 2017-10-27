@@ -43,18 +43,18 @@ namespace Factory {
 
 /**
  * @brief newCamera
- * @param entityMgr
+ * @param es
  * @param pos
  * @param rot
  * @param app
  * @return
  */
-Entity newCamera(EntityManager &entityMgr, const vec3 &pos, const quat &rot,
+Entity newCamera(EntityManager &es, const vec3 &pos, const quat &rot,
                  Application &app);
 
 /**
  * @brief newParticle
- * @param entityMgr
+ * @param es
  * @param pos
  * @param maxLife
  * @param mode
@@ -63,14 +63,14 @@ Entity newCamera(EntityManager &entityMgr, const vec3 &pos, const quat &rot,
  * @param size
  * @return
  */
-Entity newParticle(EntityManager &entityMgr, Application &app, const vec3 &pos,
+Entity newParticle(EntityManager &es, Application &app, const vec3 &pos,
                    ParticleCmp::Mode mode, float maxLife,
                    ParticleCmp::ResetFn resetFn, ParticleCmp::UpdateFn updateFn,
                    size_t size);
 
 /**
  * @brief newPowerUp
- * @param entityMgr
+ * @param es
  * @param pos
  * @param vel
  * @param sprite
@@ -79,13 +79,13 @@ Entity newParticle(EntityManager &entityMgr, Application &app, const vec3 &pos,
  * @param mask
  * @return
  */
-Entity newPowerUp(EntityManager &entityMgr, const vec3 &pos, const vec3 &vel,
+Entity newPowerUp(EntityManager &es, const vec3 &pos, const vec3 &vel,
                   uint sprite, uint color, float collider, uint mask,
                   PowerCmp::PowerUp power);
 
 /**
  * @brief Spawns a new bullet entity
- * @param entityMgr, reference
+ * @param es, reference
  * @param pos, of entity
  * @param vel, of entity
  * @param sprite, to use
@@ -94,28 +94,28 @@ Entity newPowerUp(EntityManager &entityMgr, const vec3 &pos, const vec3 &vel,
  * @param damage, on hit
  * @return entity handle
  */
-Entity newBullet(EntityManager &entityMgr, const vec3 &pos, const quat &rot,
+Entity newBullet(EntityManager &es, const vec3 &pos, const quat &rot,
                  const vec3 &vel, uint sprite, uint color, float collider,
                  uint mask, float damage);
 
 /**
  * @brief newPlayer
- * @param entityMgr
+ * @param es
  * @param pos
  * @param lives
  * @return
  */
-Entity newPlayer(EntityManager &entityMgr, const vec3 &pos, uchar lives);
+Entity newPlayer(EntityManager &es, const vec3 &pos, uchar lives);
 
 /**
  * @brief newEnemy
- * @param entityMgr
+ * @param es
  * @param speed
  * @param points
  * @param color
  * @param idxPos
  * @return
  */
-Entity newEnemy(EntityManager &entityMgr, float speed, uint points, uint color,
+Entity newEnemy(EntityManager &es, float speed, uint points, uint color,
                 const vec3 &idxPos);
 }

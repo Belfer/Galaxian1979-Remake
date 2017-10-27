@@ -17,8 +17,15 @@ protected:
   friend class Engine;
   virtual bool init(int argc, char **args) = 0;
   virtual void fixed(float dt) = 0;
+
+  virtual void pre_update(float dt) = 0;
   virtual void update(float dt) = 0;
+  virtual void post_update(float dt) = 0;
+
+  virtual void pre_draw(float dt) = 0;
   virtual void draw(Camera &camera, float dt) = 0;
+  virtual void post_draw(float dt) = 0;
+
   virtual void editor() = 0;
   virtual void close() = 0;
 };

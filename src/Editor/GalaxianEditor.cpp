@@ -1,7 +1,9 @@
 #include "GalaxianEditor.hpp"
 #include "Core/Color.hpp"
 #include "Core/Global.hpp"
+#include "Core/LineBatch.hpp"
 #include "Core/SpriteBatch.hpp"
+#include "Game/Components.hpp"
 #include "imgui_impl.h"
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
@@ -17,13 +19,28 @@ struct Ent {
   float scl = 1;
 };
 
-#define NUM_ENTS 500
+#define NUM_ENTS 10000 // 4000
 Ent ents[NUM_ENTS];
 
 using namespace glm;
 
-Material material;
+LineBatch *pLineBatch;
 SpriteBatch *pSpriteBatch;
+
+Entity entity;
+
+Entity newEntity(EntityManager &es, const std::string &name,
+                 const std::string &tag, const vec3 &pos, float rot, float scl,
+                 const vec3 &vel, float trq, size_t texture, size_t shader,
+                 const vec2 &origin, const vec2 &size, const vec4 &uv) {
+  auto e = es.create();
+  e.assign<EntityCmp>(name, tag);
+  e.assign<TransformCmp>(pos, vec3(scl), angleAxis(rot, vec3(0, 0, 1)));
+  e.assign<PhysicsCmp>(vel, trq, 1.f);
+  e.assign<MaterialCmp>(texture, shader);
+  e.assign<SpriteCmp>(origin, size, uv);
+  return e;
+}
 
 bool GalaxianEditor::init(int argc, char **args) {
   // Setup ImGui binding
@@ -34,27 +51,34 @@ bool GalaxianEditor::init(int argc, char **args) {
 
   // Setup camera
   size_t cameraId = Engine::GetRenderer().newCamera();
-  Camera &camera = Engine::GetRenderer().getCamera(cameraId);
-
-  const float hw = w * 0.5f;
-  const float hh = h * 0.5f;
-  camera.orthographic(-hw, hw, -hh, hh, 1.f, 100.f);
-  camera.setViewSize(vec2(w, h));
+  m_pEditorCam = &Engine::GetRenderer().getCamera(cameraId);
+  m_pEditorCam->setViewSize(w, h);
+  Engine::GetRenderer().bindCamera(cameraId);
 
   // Setup texture
-  material.texture = Engine::GetRenderer().newTexture();
-  Texture &texture = Engine::GetRenderer().getTexture(material.texture);
+  m_sprTexture = Engine::GetRenderer().newTexture();
+  Texture &sprTexture = Engine::GetRenderer().getTexture(m_sprTexture);
 
-  texture.load(Global::ResPath + "/images/invader.png", Texture::RGBA);
-  texture.setMipmapFilter(Texture::NEAREST_MIPMAP_NEAREST);
-  texture.setSampleFilter(Texture::NEAREST);
+  sprTexture.load(Global::ResPath + "/images/invader.png", Texture::RGBA);
+  sprTexture.setMipmapFilter(Texture::NEAREST_MIPMAP_NEAREST);
+  sprTexture.setSampleFilter(Texture::NEAREST);
 
   // Setup shader
-  material.shader = Engine::GetRenderer().newShader();
-  Shader &shader = Engine::GetRenderer().getShader(material.shader);
+  m_sprShader = Engine::GetRenderer().newShader();
+  Shader &sprShader = Engine::GetRenderer().getShader(m_sprShader);
 
-  shader.load(Global::ResPath + "/shaders/sprite.vert",
-              Global::ResPath + "/shaders/sprite.frag");
+  sprShader.load(Global::ResPath + "/shaders/sprite.vert",
+                 Global::ResPath + "/shaders/sprite.frag");
+
+  m_lineShader = Engine::GetRenderer().newShader();
+  Shader &linShader = Engine::GetRenderer().getShader(m_lineShader);
+
+  linShader.load(Global::ResPath + "/shaders/line.vert",
+                 Global::ResPath + "/shaders/line.frag");
+
+  // Setup line batch
+  pLineBatch = new LineBatch(Engine::GetRenderer());
+  pLineBatch->configure();
 
   // Setup sprite batch
   pSpriteBatch = new SpriteBatch(Engine::GetRenderer(), NUM_ENTS);
@@ -64,10 +88,14 @@ bool GalaxianEditor::init(int argc, char **args) {
     ent.col = vec4((rand() % 100) / 100.f, (rand() % 100) / 100.f,
                    (rand() % 100) / 100.f, (rand() % 100) / 100.f);
     ent.pos = vec2((rand() % 768) - 384, (rand() % 768) - 384);
-    ent.vel = vec2(cos(rand() % 360) * 1000, sin(rand() % 360) * 1000);
-    ent.trq = (float)(rand() % 100);
+    ent.vel = vec2(cos(rand() % 360) * 100, sin(rand() % 360) * 100);
+    ent.trq = (float)(rand() % 10);
     ent.scl = 1 + (rand() % 5) / 5.f;
   }
+
+  entity = newEntity(entities, "name", "tag", vec3(0, 0, 0), 0, 0,
+                     vec3(0, 0, 0), 0, m_sprTexture, m_sprShader, vec2(0, 0),
+                     vec2(32, 32), vec4(0, 0, 32, 32));
 
   // Add systems
   //  const size_t numSys = 15;
@@ -103,11 +131,33 @@ const vec4 spriteUVs(0, 0, 1, 1);
 mat4x4 modelview;
 float t = 0;
 
+void GalaxianEditor::pre_update(float dt) {}
+
 void GalaxianEditor::update(float dt) {
   // std::cout << dt << "u\n\n";
   t += dt;
 
-  float p = glfwGetTime();
+  int w = 0, h = 0;
+  Engine::GetWindow().getWindowSize(w, h);
+  m_pEditorCam->update(w, h);
+
+  double mx = 0, my = 0;
+  // Engine::GetWindow().getMousePos(mx, my);
+  vec4 mp(mx, my, 0, 1);
+  // mp.x -= w * 0.5f;1
+  // mp.y = (h - mp.y) - h * 0.5f;
+  // mp = m_editorCam.getView() * mp;
+
+  pLineBatch->clear();
+  pLineBatch->drawLine(vec3(mp.x - 4, mp.y - 4, -5),
+                       vec3(mp.x + 4, mp.y + 4, -5), vec4(1, 1, 1, 1),
+                       vec4(1, 1, 1, 1));
+  pLineBatch->drawLine(vec3(mp.x - 4, mp.y + 4, -5),
+                       vec3(mp.x + 4, mp.y - 4, -5), vec4(1, 1, 1, 1),
+                       vec4(1, 1, 1, 1));
+  pLineBatch->update();
+
+  // float p = glfwGetTime();
   pSpriteBatch->clear();
   for (auto &ent : ents) {
     ent.pos += ent.vel * dt;
@@ -128,7 +178,8 @@ void GalaxianEditor::update(float dt) {
     pSpriteBatch->drawSprite(spriteRct, spriteUVs, ent.col, modelview);
   }
   pSpriteBatch->update();
-  std::cout << (100 * (glfwGetTime() - p) / (1 / 60.f)) << "\n";
+  //  // std::cout << (glfwGetTime() - p) << "\n";
+  // std::cout << (100 * (glfwGetTime() - p) / (1.f / 60.f)) << "\n\n";
 
   // Calculate FPS
   m_fps++;
@@ -155,8 +206,15 @@ void GalaxianEditor::update(float dt) {
   //  updateProfileSys<SpawnSystem>(8, dt);
 }
 
+void GalaxianEditor::post_update(float dt) {}
+
+void GalaxianEditor::pre_draw(float dt) {}
+
 void GalaxianEditor::draw(Camera &camera, float dt) {
-  pSpriteBatch->draw(camera, material);
+  Engine::GetRenderer().bindTexture(m_sprTexture);
+  Engine::GetRenderer().bindShader(m_sprShader);
+  Engine::GetRenderer().draw(pSpriteBatch);
+  // Engine::GetRenderer().draw(pLineBatch);
 
   // Update and profile render systems
   //  updateProfileSys<MenuSystem>(9, dt);
@@ -168,22 +226,26 @@ void GalaxianEditor::draw(Camera &camera, float dt) {
   //    updateProfileSys<DebugSystem>(14, dt);
 }
 
+void GalaxianEditor::post_draw(float dt) {}
+
 void GalaxianEditor::editor() {
+  // draw(m_pEditorCam, 0);
+
   ImGui_ImplGlfwGL3_NewFrame();
 
   ImGui::BeginMainMenuBar();
 
   if (ImGui::BeginMenu("File")) {
-    ImGui::Text("New Scene");
-    ImGui::Text("Load Scene");
+    ImGui::MenuItem("New Scene", "", false, true);
+    ImGui::MenuItem("Load Scene", "", false, true);
     ImGui::EndMenu();
   }
   if (ImGui::BeginMenu("Edit")) {
-    ImGui::Text("Undo");
-    ImGui::Text("Redo");
-    ImGui::Text("Cut");
-    ImGui::Text("Copy");
-    ImGui::Text("Paste");
+    ImGui::MenuItem("Undo", "", false, true);
+    ImGui::MenuItem("Redo", "", false, true);
+    ImGui::MenuItem("Cut", "", false, true);
+    ImGui::MenuItem("Copy", "", false, true);
+    ImGui::MenuItem("Paste", "", false, true);
     ImGui::EndMenu();
   }
   if (ImGui::BeginMenu("View")) {
@@ -220,6 +282,35 @@ void GalaxianEditor::editor() {
     ImGui::Begin("- Editor -");
     ImGui::End();
   }
+
+  ImGui::Begin("- Inspector -");
+
+  if (entity.has_component<TransformCmp>()) {
+    const auto &trx = entity.component<TransformCmp>();
+    ImGui::Text("- Transform -");
+    ImGui::InputFloat3("Position",
+                       const_cast<float *>(glm::value_ptr(trx->pos)), 3);
+    ImGui::InputFloat3("Scale", const_cast<float *>(glm::value_ptr(trx->scl)),
+                       3);
+    ImGui::InputFloat4("Rotation",
+                       const_cast<float *>(glm::value_ptr(trx->rot)), 3);
+  }
+
+  if (entity.has_component<PhysicsCmp>()) {
+    const auto &phy = entity.component<PhysicsCmp>();
+    ImGui::Text("- Physics -");
+    ImGui::InputFloat("Mass", const_cast<float *>(&phy->mass), 0.1f, 1.0f, 3);
+    ImGui::InputFloat("Troque", const_cast<float *>(&phy->trq), 0.1f, 1.0f, 3);
+    ImGui::InputFloat3("Velocity",
+                       const_cast<float *>(glm::value_ptr(phy->vel)), 3);
+    //    ImGui::InputFloat3("Acceleration",
+    //                       const_cast<float *>(glm::value_ptr(phy->acc)), 3);
+    //    ImGui::InputFloat3("Force", const_cast<float
+    //    *>(glm::value_ptr(phy->force)),
+    //                       3);
+  }
+
+  ImGui::End();
 
   ImGui::Render();
 }

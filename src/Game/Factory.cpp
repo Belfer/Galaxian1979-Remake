@@ -30,96 +30,96 @@ uint powerShieldSpr;
 uint shieldSpr;
 
 void load(Application &app) {
-//  app.AddFont((Global::ResPath + "/fonts/invaders.json").c_str());
+  //  app.AddFont((Global::ResPath + "/fonts/invaders.json").c_str());
 
-//  bulletSpr = app.CreateSprite(
-//      (Global::ResPath + "/images/bullet.png").c_str(), 16, 16, true);
+  //  bulletSpr = app.CreateSprite(
+  //      (Global::ResPath + "/images/bullet.png").c_str(), 16, 16, true);
 
-//  playerSpr = app.CreateSprite(
-//      (Global::ResPath + "/images/cannon.png").c_str(), 32, 32, true);
+  //  playerSpr = app.CreateSprite(
+  //      (Global::ResPath + "/images/cannon.png").c_str(), 32, 32, true);
 
-//  enemySpr = app.CreateSprite(
-//      (Global::ResPath + "/images/invader.png").c_str(), 32, 32, true);
+  //  enemySpr = app.CreateSprite(
+  //      (Global::ResPath + "/images/invader.png").c_str(), 32, 32, true);
 
-//  powerShieldSpr = app.CreateSprite(
-//      (Global::ResPath + "/images/powup_shield.png").c_str(), 24, 24, true);
-//  shieldSpr = app.CreateSprite(
-//      (Global::ResPath + "/images/shield2.png").c_str(), 32, 32, true);
+  //  powerShieldSpr = app.CreateSprite(
+  //      (Global::ResPath + "/images/powup_shield.png").c_str(), 24, 24, true);
+  //  shieldSpr = app.CreateSprite(
+  //      (Global::ResPath + "/images/shield2.png").c_str(), 32, 32, true);
 }
 
 void unload(Application &app) {
-//  app.RemoveFont((Global::ResPath + "/fonts/invaders.fnt").c_str());
-//  app.DestroySprite(bulletSpr);
-//  app.DestroySprite(playerSpr);
-//  app.DestroySprite(enemySpr);
+  //  app.RemoveFont((Global::ResPath + "/fonts/invaders.fnt").c_str());
+  //  app.DestroySprite(bulletSpr);
+  //  app.DestroySprite(playerSpr);
+  //  app.DestroySprite(enemySpr);
 }
 }
 
 namespace Factory {
 
-Entity newCamera(EntityManager &entityMgr, const vec3 &pos, const quat &rot,
+Entity newCamera(EntityManager &es, const vec3 &pos, const quat &rot,
                  Application &app) {
-  auto e = entityMgr.create();
-//  e.assign<TransformCmp>(pos, vec3(1, 1, 1), rot);
-//  auto &camera = app.CreateCamera();
-//  e.assign<CameraCmp>(camera.first, camera.second);
+  auto e = es.create();
+  //  e.assign<TransformCmp>(pos, vec3(1, 1, 1), rot);
+  //  auto &camera = app.CreateCamera();
+  //  e.assign<CameraCmp>(camera.first, camera.second);
   return e;
 }
 
-Entity newParticle(EntityManager &entityMgr, Application &app, const vec3 &pos,
+Entity newParticle(EntityManager &es, Application &app, const vec3 &pos,
                    ParticleCmp::Mode mode, float maxLife,
                    ParticleCmp::ResetFn resetFn, ParticleCmp::UpdateFn updateFn,
                    size_t size) {
-  auto e = entityMgr.create();
-//  e.assign<TransformCmp>(pos, vec3(1, 1, 1), quat());
-//  e.assign<ParticleCmp>(app, mode, maxLife, resetFn, updateFn, size);
+  auto e = es.create();
+  //  e.assign<TransformCmp>(pos, vec3(1, 1, 1), quat());
+  //  e.assign<ParticleCmp>(app, mode, maxLife, resetFn, updateFn, size);
   return e;
 }
 
-Entity newPowerUp(EntityManager &entityMgr, const vec3 &pos, const vec3 &vel,
+Entity newPowerUp(EntityManager &es, const vec3 &pos, const vec3 &vel,
                   uint sprite, uint color, float collider, uint mask,
                   PowerCmp::PowerUp power) {
-  auto e = entityMgr.create();
-//  e.assign<TransformCmp>(pos, vec3(1, 1, 1), quat());
-//  e.assign<PhysicsCmp>(vel, vec3(0, 0, 0), 1, vec3(0, 0, 0));
-//  e.assign<SpriteCmp>(sprite, color);
-//  e.assign<ColliderCmp>(collider, mask);
-//  e.assign<PowerCmp>(power);
+  auto e = es.create();
+  //  e.assign<TransformCmp>(pos, vec3(1, 1, 1), quat());
+  //  e.assign<PhysicsCmp>(vel, vec3(0, 0, 0), 1, vec3(0, 0, 0));
+  //  e.assign<SpriteCmp>(sprite, color);
+  //  e.assign<ColliderCmp>(collider, mask);
+  //  e.assign<PowerCmp>(power);
   return e;
 }
 
-Entity newBullet(EntityManager &entityMgr, const vec3 &pos, const quat &rot,
+Entity newBullet(EntityManager &es, const vec3 &pos, const quat &rot,
                  const vec3 &vel, uint sprite, uint color, float collider,
                  uint mask, float damage) {
-  auto e = entityMgr.create();
-//  e.assign<TransformCmp>(pos, vec3(1, 1, 1), rot);
-//  e.assign<PhysicsCmp>(vel, vec3(0, 0, 0), 1, vec3(0, 0, 0));
-//  e.assign<SpriteCmp>(sprite, color);
-//  e.assign<ColliderCmp>(collider, mask);
-//  e.assign<BulletCmp>(damage);
+  auto e = es.create();
+  //  e.assign<TransformCmp>(pos, vec3(1, 1, 1), rot);
+  //  e.assign<PhysicsCmp>(vel, vec3(0, 0, 0), 1, vec3(0, 0, 0));
+  //  e.assign<SpriteCmp>(sprite, color);
+  //  e.assign<ColliderCmp>(collider, mask);
+  //  e.assign<BulletCmp>(damage);
   return e;
 }
 
-Entity newPlayer(EntityManager &entityMgr, const vec3 &pos, uchar lives) {
-  auto e = entityMgr.create();
-//  e.assign<TransformCmp>(pos, vec3(1, 1, 1), quat());
-//  e.assign<PhysicsCmp>(vec3(0, 0, 0), vec3(0, 0, 0), 1, vec3(0, 0, 0));
-//  e.assign<SpriteCmp>(GVars::playerSpr, 0xFFFFFFFF);
-//  e.assign<ColliderCmp>(GVars::playerRadius, GVars::playerMask);
-//  e.assign<HealthCmp>(1, 0, 1);
-//  e.assign<PlayerCmp>(GVars::playerFirerate, GVars::playerSpeed, lives);
+Entity newPlayer(EntityManager &es, const vec3 &pos, uchar lives) {
+  auto e = es.create();
+  //  e.assign<TransformCmp>(pos, vec3(1, 1, 1), quat());
+  //  e.assign<PhysicsCmp>(vec3(0, 0, 0), vec3(0, 0, 0), 1, vec3(0, 0, 0));
+  //  e.assign<SpriteCmp>(GVars::playerSpr, 0xFFFFFFFF);
+  //  e.assign<ColliderCmp>(GVars::playerRadius, GVars::playerMask);
+  //  e.assign<HealthCmp>(1, 0, 1);
+  //  e.assign<PlayerCmp>(GVars::playerFirerate, GVars::playerSpeed, lives);
   return e;
 }
 
-Entity newEnemy(EntityManager &entityMgr, float speed, uint points, uint color,
+Entity newEnemy(EntityManager &es, float speed, uint points, uint color,
                 const vec3 &idxPos) {
-  auto e = entityMgr.create();
-//  e.assign<TransformCmp>(vec3(0, 0, 0), vec3(1, 1, 1), quat());
-//  e.assign<PhysicsCmp>(vec3(0, 0, 0), vec3(0, 0, 0), 1, vec3(0, 0, 0));
-//  e.assign<SpriteCmp>(GVars::enemySpr, color);
-//  e.assign<ColliderCmp>(GVars::enemyRadius, GVars::enemyMask);
-//  e.assign<HealthCmp>(1, 0, 1);
-//  e.assign<EnemyCmp>(GVars::enemyFirerate, speed, points, idxPos);
+  auto e = es.create();
+  //  e.assign<TransformCmp>(vec3(0, 0, 0), vec3(1, 1, 1), quat());
+  //  e.assign<PhysicsCmp>(vec3(0, 0, 0), vec3(0, 0, 0), 1, vec3(0, 0, 0));
+  //  e.assign<SpriteCmp>(GVars::enemySpr, color);
+  //  e.assign<ColliderCmp>(GVars::enemyRadius, GVars::enemyMask);
+  //  e.assign<HealthCmp>(1, 0, 1);
+  //  e.assign<EnemyCmp>(GVars::enemyFirerate, speed, points, idxPos);
   return e;
 }
 }

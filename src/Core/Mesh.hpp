@@ -14,6 +14,8 @@
 namespace NHTV {
 class Mesh {
 public:
+  enum MeshType { PRIMITIVE = 0, INDEXED = 1 };
+
   enum MeshMode {
     STATIC = GL_STATIC_DRAW,
     DYNAMIC = GL_DYNAMIC_DRAW,
@@ -29,6 +31,7 @@ public:
   struct Params {
     std::vector<Vertex> vertices;
     std::vector<uint> indices;
+    MeshType meshType = INDEXED;
     MeshMode meshMode = STATIC;
     DrawMode drawMode = TRIANGLES;
   };
@@ -52,6 +55,8 @@ private:
   void generate();
 
   uint m_mesh = 0;
+  uint m_VBO = 0;
+  uint m_EBO = 0;
   Params m_params;
 
   bool m_updated = false;

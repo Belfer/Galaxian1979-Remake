@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 
 #include "Camera.hpp"
+#include "Drawable.hpp"
 #include "Material.hpp"
 #include "Mesh.hpp"
 #include "NonCopyable.hpp"
@@ -15,7 +16,6 @@
 using namespace glm;
 
 namespace NHTV {
-
 class Renderer : public NonCopyable {
 public:
   Renderer();
@@ -45,9 +45,16 @@ public:
 
   void removeMesh(size_t id);
 
-  void draw(size_t camera, size_t mesh, const Material &material);
+  void bindCamera(size_t id);
 
-  void draw(const Camera &camera, const Mesh &mesh, const Material &material);
+  void bindTexture(size_t id);
+
+  void bindShader(size_t id);
+
+  void draw(IDrawable *pDrawable);
+
+  // void draw(const Camera &camera, const Mesh &mesh, const Material
+  // &material);
 
   void setPostFxShader(const std::string &vertfile,
                        const std::string &fragfile);
@@ -55,6 +62,12 @@ public:
   Shader &getPostFxShader();
 
 private:
+  struct RenderState {
+    size_t camera;
+    size_t texture;
+    size_t shader;
+  };
+
   friend class Engine;
   bool createFramebuffer(int width, int height);
 
@@ -70,6 +83,9 @@ private:
 
   GLuint m_frameBuffer = 0;
   GLuint m_renderTarget = 0;
+
+  Camera m_mainCamera;
+  RenderState m_renderState;
 
   std::map<size_t, Camera> m_cameraMap;
   std::map<size_t, Texture> m_textureMap;

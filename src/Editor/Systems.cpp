@@ -1,6 +1,32 @@
-/*#include "Systems.hpp"
+#include "Systems.hpp"
 #include "Game/Components.hpp"
-#include "Game/Factory.hpp"
+
+/**
+ * @brief PhysicsSystem
+ */
+void PhysicsSystem::update(EntityManager &es, EventManager &ev, TimeDelta dt) {
+  es.each<TransformCmp, PhysicsCmp>(
+      [dt](Entity e, TransformCmp &trx, PhysicsCmp &phs) {
+        // phs.acc = phs.force / phs.mass;
+        // phs.vel += phs.acc;
+        trx.pos += phs.vel * (float)dt;
+        trx.rot *= angleAxis(phs.trq * (float)dt, vec3(0, 0, 1));
+      });
+}
+
+/**
+ * @brief SpriteSystem
+ */
+void SpriteSystem::update(EntityManager &es, EventManager &ev, TimeDelta dt) {
+  mat4x4 modelMat;
+  es.each<TransformCmp, SpriteCmp>(
+      [=, &modelMat](Entity e, TransformCmp &trx, SpriteCmp &spr) {
+        modelMat = translate(trx.pos) * toMat4(trx.rot) * scale(trx.scl);
+        // pSpriteBatch->drawSprite(spriteRct, spriteUVs, ent.col, model);
+      });
+}
+
+/*#include "Game/Factory.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/projection.hpp>
 

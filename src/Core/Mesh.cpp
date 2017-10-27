@@ -1,4 +1,5 @@
 #include "Mesh.hpp"
+#include <array>
 
 using namespace NHTV;
 
@@ -8,29 +9,29 @@ void Mesh::configure(const Params &params) {
 }
 
 void Mesh::generate() {
-  float buffer[m_params.vertices.size() * 10];
+  const size_t vBufferSize = m_params.vertices.size() * 10;
+  float vBuffer[vBufferSize];
   uint idx = 0;
   for (auto vert : m_params.vertices) {
-    buffer[idx++] = vert.position.x;
-    buffer[idx++] = vert.position.y;
-    buffer[idx++] = vert.position.z;
-    buffer[idx++] = vert.position.w;
-    buffer[idx++] = vert.color.x;
-    buffer[idx++] = vert.color.y;
-    buffer[idx++] = vert.color.z;
-    buffer[idx++] = vert.color.w;
-    buffer[idx++] = vert.texcoord.x;
-    buffer[idx++] = vert.texcoord.y;
+    vBuffer[idx++] = vert.position.x;
+    vBuffer[idx++] = vert.position.y;
+    vBuffer[idx++] = vert.position.z;
+    vBuffer[idx++] = vert.position.w;
+    vBuffer[idx++] = vert.color.x;
+    vBuffer[idx++] = vert.color.y;
+    vBuffer[idx++] = vert.color.z;
+    vBuffer[idx++] = vert.color.w;
+    vBuffer[idx++] = vert.texcoord.x;
+    vBuffer[idx++] = vert.texcoord.y;
   }
 
   glGenVertexArrays(1, &m_mesh);
   glBindVertexArray(m_mesh);
 
   // Vertex buffer
-  uint VBO = 0;
-  glGenBuffers(1, &VBO);
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(buffer), buffer, m_params.meshMode);
+  glGenBuffers(1, &m_VBO);
+  glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+  glBufferData(GL_ARRAY_BUFFER, vBufferSize, vBuffer, m_params.meshMode);
 
   // Position
   glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float),
@@ -48,11 +49,13 @@ void Mesh::generate() {
   glEnableVertexAttribArray(2);
 
   // Element buffer
-  uint EBO = 0;
-  glGenBuffers(1, &EBO);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_params.indices.size() * sizeof(uint),
-               &m_params.indices[0], m_params.meshMode);
+  const size_t eBufferSize = m_params.indices.size() * sizeof(uint);
+  uint *eBuffer = &m_params.indices[0];
+
+  glGenBuffers(1, &m_EBO);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, eBufferSize, eBuffer,
+               m_params.meshMode);
 
   glBindVertexArray(0);
 }
@@ -70,14 +73,35 @@ void Mesh::update() {
 }
 
 void Mesh::draw() {
+  assert(!m_updated && "Update mesh before drawing!");
+
   glBindVertexArray(m_mesh);
-  const size_t indxCount = m_params.indices.size();
-  glDrawElements(m_params.drawMode, indxCount, GL_UNSIGNED_INT, 0);
+
+  if (m_params.meshType == PRIMITIVE) {
+    glDrawArrays(m_params.drawMode, 0, m_params.vertices.size());
+
+  } else if (m_params.meshType == INDEXED) {
+    const size_t indxCount = m_params.indices.size();
+    glDrawElements(m_params.drawMode, indxCount, GL_UNSIGNED_INT, 0);
+  }
   glBindVertexArray(0);
 }
 
 void Mesh::clear() {
-  m_params.vertices.clear();
-  m_params.indices.clear();
+  // Clear buffers
+  glBindVertexArray(m_mesh);
+
+  glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+  glDeleteBuffers(1, &m_VBO);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
+  glDeleteBuffers(1, &m_EBO);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
   glDeleteVertexArrays(1, &m_mesh);
+  glBindVertexArray(0);
+
+  // Re-configure
+  configure(Params());
 }

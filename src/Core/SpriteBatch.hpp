@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Drawable.hpp"
 #include "Mesh.hpp"
 #include "NonCopyable.hpp"
 #include "Renderer.hpp"
@@ -9,7 +10,7 @@
 using namespace glm;
 
 namespace NHTV {
-class SpriteBatch : public NonCopyable {
+class SpriteBatch : public IDrawable, public NonCopyable {
 public:
   struct Quad {
     Vertex v1;
@@ -19,6 +20,7 @@ public:
   };
 
   SpriteBatch(Renderer &renderer, size_t size = 100);
+  ~SpriteBatch();
 
   void drawSprite(const vec4 &rct, const vec4 &uvs, const vec4 &color);
 
@@ -27,7 +29,6 @@ public:
 
   void configure();
   void update();
-  void draw(const Camera &camera, const Material &material);
   void clear();
 
 private:
@@ -35,6 +36,9 @@ private:
   size_t m_meshId;
   Mesh *m_meshPtr;
 
-  std::vector<Quad> m_quads;
+private:
+  virtual void draw(const Camera &camera, Texture &texture, Shader &shader);
+
+  // std::vector<Quad> m_quads;
 };
 }

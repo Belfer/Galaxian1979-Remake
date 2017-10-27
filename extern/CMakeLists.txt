@@ -20,6 +20,8 @@ add_subdirectory(soil)
 add_subdirectory(imgui)
 # add_subdirectory(portaudio)
 
+add_library(TFD tfd/tinyfiledialogs.c)
+
 set(DEPENDENCIES_INCLUDE
   ${CMAKE_CURRENT_SOURCE_DIR}/glad/include
   ${CMAKE_CURRENT_SOURCE_DIR}/glfw/include
@@ -28,6 +30,7 @@ set(DEPENDENCIES_INCLUDE
   ${CMAKE_CURRENT_SOURCE_DIR}/json/src
   ${CMAKE_CURRENT_SOURCE_DIR}/entityx
   ${CMAKE_CURRENT_SOURCE_DIR}/imgui
+  ${CMAKE_CURRENT_SOURCE_DIR}/tfd
   ${CMAKE_CURRENT_SOURCE_DIR}/portaudio/include
   PARENT_SCOPE
 )
