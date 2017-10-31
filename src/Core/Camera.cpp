@@ -2,12 +2,6 @@
 
 using namespace NHTV;
 
-//void Camera::orthographic(float left, float right, float bottom, float top,
-//                          float znear, float zfar) {
-//  m_proj = glm::ortho(left, right, bottom, top, znear, zfar);
-//  m_aspect = abs((right - left) / (top - bottom));
-//}
-
 void Camera::update(int width, int height) {
   float aspect = m_viewSize.x / m_viewSize.y;
 
@@ -26,6 +20,10 @@ void Camera::update(int width, int height) {
 
   m_viewport = vec4((float)vx / width, (float)vy / height, (float)vw / width,
                     (float)vh / height);
+
+  const float hw = m_viewSize.x * 0.5f;
+  const float hh = m_viewSize.y * 0.5f;
+  m_proj = ortho(-hw, hw, -hh, hh, 0.1f, 100.f);
   m_view = translate(-position) * toMat4(conjugate(rotation));
   m_viewProj = m_view * m_proj;
 }

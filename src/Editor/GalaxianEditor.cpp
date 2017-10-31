@@ -19,7 +19,7 @@ struct Ent {
   float scl = 1;
 };
 
-#define NUM_ENTS 10000 // 4000
+#define NUM_ENTS 2000 // 4000
 Ent ents[NUM_ENTS];
 
 using namespace glm;

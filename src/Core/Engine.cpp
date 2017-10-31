@@ -24,6 +24,7 @@ int Engine::run(int argc, char **args, Application *app) {
   config.ypos = appData["yPos"];
   config.width = appData["width"];
   config.height = appData["height"];
+  config.vsync = false;
 
   m_pWindow = new Window(config);
   m_pRenderer = new Renderer();
@@ -47,24 +48,25 @@ int Engine::run(int argc, char **args, Application *app) {
 
   // Start the game loop
   while (!m_pWindow->shouldClose() && m_running) {
-    std::cout << "Frame time: " << SecTime(frameTime).count() << "\n";
+    //std::cout << "Frame time: " << SecTime(frameTime).count() << "\n";
 
     elapsed = frameTimer.elapsed<Nano>() + carry;
-    std::cout << "Elapsed: " << SecTime(elapsed).count() << "\n";
     frameTimer.reset();
+    //std::cout << "Elapsed: " << SecTime(elapsed).count() << "\n";
+
     carry = NanoTime(0);
 
     if (elapsed < frameTime) {
       diff = frameTime - elapsed;
-      std::cout << "Difference: " << SecTime(diff).count() << "\n";
+      //std::cout << "Difference: " << SecTime(diff).count() << "\n";
 
       carryTimer.reset();
       Thread::sleep(diff);
       carry = diff - carryTimer.elapsed<Nano>();
       carryTimer.reset();
-
-      // frameTimer += carry;
-      std::cout << "Carry: " << SecTime(carry).count() << "\n";
+      //std::cout << "Carry: " << SecTime(carry).count() << "\n";
+    } else {
+      elapsed = frameTime;
     }
 
     app->fixed(fixedTime.count());
