@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Core/Engine.hpp"
-#include "Core/Mesh.hpp"
-#include "Core/Shader.hpp"
-#include "Core/Texture.hpp"
+#include "Engine/Core/Engine.hpp"
+#include "Engine/Graphics/Mesh.hpp"
+#include "Engine/Graphics/Shader.hpp"
+#include "Engine/Graphics/Texture.hpp"
 #include <entityx/entityx.h>
 
 using namespace NHTV;

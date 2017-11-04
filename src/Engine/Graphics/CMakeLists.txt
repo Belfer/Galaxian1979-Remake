@@ -1,43 +1,30 @@
 cmake_minimum_required(VERSION 2.8)
-set(CORE_HDRS
-  "${CMAKE_CURRENT_SOURCE_DIR}/Global.hpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Engine.hpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Window.hpp"
+set(GRAPHICS_HDRS
   "${CMAKE_CURRENT_SOURCE_DIR}/Renderer.hpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Color.hpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Texture.hpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Shader.hpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Mesh.hpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Batch.hpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/SpriteBatch.hpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/LineBatch.hpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Camera.hpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Audio.hpp"
 
-  "${CMAKE_CURRENT_SOURCE_DIR}/NonCopyable.hpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Vertex.hpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Material.hpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Drawable.hpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Input.hpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Types.hpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Timer.hpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Thread.hpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Pool.hpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Util.hpp"
   PARENT_SCOPE
 )
 
-set(CORE_SRCS
-  "${CMAKE_CURRENT_SOURCE_DIR}/Global.cpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Engine.cpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Window.cpp"
+set(GRAPHICS_SRCS
   "${CMAKE_CURRENT_SOURCE_DIR}/Renderer.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Color.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Texture.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Shader.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Mesh.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Batch.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/SpriteBatch.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/LineBatch.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Camera.cpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Audio.cpp"
   PARENT_SCOPE
 )

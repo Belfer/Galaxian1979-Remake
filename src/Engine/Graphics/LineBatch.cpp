@@ -28,7 +28,7 @@ void LineBatch::configure() {
   m_meshPtr->configure(params);
 }
 
-void LineBatch::update() { m_meshPtr->update(); }
+void LineBatch::update() { m_meshPtr->update(false); }
 
 void LineBatch::draw(const Camera &camera, const Material &material) {
   glDisable(GL_DEPTH_TEST);

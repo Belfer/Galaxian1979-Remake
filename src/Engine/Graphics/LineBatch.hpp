@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Mesh.hpp"
-#include "NonCopyable.hpp"
+#include "Engine/Core/NonCopyable.hpp"
 #include "Renderer.hpp"
 #include <glm/glm.hpp>
 #include <vector>

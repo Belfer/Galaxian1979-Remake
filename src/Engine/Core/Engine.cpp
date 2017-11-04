@@ -48,29 +48,29 @@ int Engine::run(int argc, char **args, Application *app) {
 
   // Start the game loop
   while (!m_pWindow->shouldClose() && m_running) {
-    //std::cout << "Frame time: " << SecTime(frameTime).count() << "\n";
+    // std::cout << "Frame time: " << SecTime(frameTime).count() << "\n";
 
     elapsed = frameTimer.elapsed<Nano>() + carry;
     frameTimer.reset();
-    //std::cout << "Elapsed: " << SecTime(elapsed).count() << "\n";
+    // std::cout << "Elapsed: " << SecTime(elapsed).count() << "\n";
 
     carry = NanoTime(0);
 
     if (elapsed < frameTime) {
       diff = frameTime - elapsed;
-      //std::cout << "Difference: " << SecTime(diff).count() << "\n";
+      // std::cout << "Difference: " << SecTime(diff).count() << "\n";
 
       carryTimer.reset();
       Thread::sleep(diff);
       carry = diff - carryTimer.elapsed<Nano>();
       carryTimer.reset();
-      //std::cout << "Carry: " << SecTime(carry).count() << "\n";
-    } else {
-      elapsed = frameTime;
+      // std::cout << "Carry: " << SecTime(carry).count() << "\n";
     }
 
     app->fixed(fixedTime.count());
 
+    //    const float dt = elapsed < frameTime ? SecTime(elapsed).count()
+    //                                         : SecTime(frameTime).count();
     const float dt = SecTime(elapsed).count();
     app->pre_update(dt);
     app->update(dt);

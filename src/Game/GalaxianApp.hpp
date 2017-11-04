@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Events.hpp"
-#include "Core/Engine.hpp"
+#include "Engine/Core/Engine.hpp"
 #include <entityx/entityx.h>
 
 using namespace NHTV;

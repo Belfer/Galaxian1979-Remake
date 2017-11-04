@@ -1,7 +1,7 @@
 #pragma once
 
 #include "NonCopyable.hpp"
-#include "Renderer.hpp"
+#include "Engine/Graphics/Renderer.hpp"
 #include "Window.hpp"
 
 #define APPLICATION_ENTRY(appClass)                                            \

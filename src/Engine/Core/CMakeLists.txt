@@ -1,0 +1,22 @@
+cmake_minimum_required(VERSION 2.8)
+set(CORE_HDRS
+  "${CMAKE_CURRENT_SOURCE_DIR}/Global.hpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Engine.hpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Window.hpp"
+
+  "${CMAKE_CURRENT_SOURCE_DIR}/NonCopyable.hpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Input.hpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Types.hpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Timer.hpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Thread.hpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Pool.hpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Util.hpp"
+  PARENT_SCOPE
+)
+
+set(CORE_SRCS
+  "${CMAKE_CURRENT_SOURCE_DIR}/Global.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Engine.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Window.cpp"
+  PARENT_SCOPE
+)

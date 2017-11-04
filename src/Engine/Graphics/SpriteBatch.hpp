@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Drawable.hpp"
-#include "Mesh.hpp"
-#include "NonCopyable.hpp"
+#include "Batch.hpp"
+#include "Engine/Core/NonCopyable.hpp"
 #include "Renderer.hpp"
 #include <glm/glm.hpp>
 #include <vector>
@@ -28,17 +28,14 @@ public:
                   const mat4x4 &trx);
 
   void configure();
-  void update();
-  void clear();
-
-private:
-  Renderer &m_renderer;
-  size_t m_meshId;
-  Mesh *m_meshPtr;
 
 private:
   virtual void draw(const Camera &camera, Texture &texture, Shader &shader);
 
-  // std::vector<Quad> m_quads;
+private:
+  Renderer &m_renderer;
+
+  Batch m_batch;
+  std::vector<Quad> m_quads;
 };
 }

@@ -2,8 +2,8 @@
 
 #include <glad/glad.h>
 
-#include "NonCopyable.hpp"
-#include "Types.hpp"
+#include "Engine/Core/NonCopyable.hpp"
+#include "Engine/Core/Types.hpp"
 #include "Vertex.hpp"
 #include <assert.h>
 #include <glm/glm.hpp>
@@ -12,7 +12,7 @@
 #include <vector>
 
 namespace NHTV {
-class Mesh {
+class Batch {
 public:
   enum MeshType { PRIMITIVE = 0, INDEXED = 1 };
 
@@ -37,39 +37,56 @@ public:
   };
 
 public:
-  void configure(const Params &params);
+  Batch(size_t vertCount = 400, size_t indxCount = 600)
+      : m_vertCount(vertCount), m_indxCount(indxCount) {
+    resize(vertCount, indxCount);
+  }
 
-  void load(const std::string &filename);
+  ~Batch() {}
+
+  void resize(size_t vertCount, size_t indxCount);
 
   void draw();
 
   void clear();
 
-  void update();
+  void setMeshType(MeshType meshType);
+
+  void setMeshMode(MeshMode meshMode);
+
+  void setDrawMode(DrawMode drawMode);
 
   uint addVertex(const Vertex &vertex);
 
   void addTriangle(uint a, uint b, uint c);
 
 private:
-  void generate();
+  size_t m_vertCount;
+  size_t m_indxCount;
 
-  uint m_mesh = 0;
   uint m_VBO = 0;
   uint m_EBO = 0;
   Params m_params;
-
-  bool m_updated = false;
 };
 
-inline uint Mesh::addVertex(const Vertex &vertex) {
-  m_updated = true;
+inline void Batch::setMeshType(MeshType meshType) {
+  m_params.meshType = meshType;
+}
+
+inline void Batch::setMeshMode(MeshMode meshMode) {
+  m_params.meshMode = meshMode;
+}
+
+inline void Batch::setDrawMode(DrawMode drawMode) {
+  m_params.drawMode = drawMode;
+}
+
+inline uint Batch::addVertex(const Vertex &vertex) {
   m_params.vertices.emplace_back(vertex);
   return m_params.vertices.size() - 1;
 }
 
-inline void Mesh::addTriangle(uint a, uint b, uint c) {
-  m_updated = true;
+inline void Batch::addTriangle(uint a, uint b, uint c) {
   m_params.indices.emplace_back(a);
   m_params.indices.emplace_back(b);
   m_params.indices.emplace_back(c);

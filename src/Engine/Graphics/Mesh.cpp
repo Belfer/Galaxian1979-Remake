@@ -5,12 +5,12 @@ using namespace NHTV;
 
 void Mesh::configure(const Params &params) {
   m_params = params;
-  generate();
+  generate(true);
 }
 
-void Mesh::generate() {
+void Mesh::generate(bool resize) {
   const size_t vBufferSize = m_params.vertices.size() * 10;
-  float vBuffer[vBufferSize];
+  float *vBuffer = new float[vBufferSize];
   uint idx = 0;
   for (auto vert : m_params.vertices) {
     vBuffer[idx++] = vert.position.x;
@@ -31,7 +31,14 @@ void Mesh::generate() {
   // Vertex buffer
   glGenBuffers(1, &m_VBO);
   glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-  glBufferData(GL_ARRAY_BUFFER, vBufferSize, vBuffer, m_params.meshMode);
+  if (resize) {
+    glBufferData(GL_ARRAY_BUFFER, vBufferSize, vBuffer, m_params.meshMode);
+  } else {
+    glBufferSubData(GL_ARRAY_BUFFER, 0, vBufferSize, vBuffer);
+  }
+
+  delete vBuffer;
+  vBuffer = nullptr;
 
   // Position
   glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float),
@@ -58,16 +65,22 @@ void Mesh::generate() {
                m_params.meshMode);
 
   glBindVertexArray(0);
+
+  glDeleteBuffers(1, &m_VBO);
+  glDeleteBuffers(1, &m_EBO);
+
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void Mesh::load(const std::string &filename) {
   // TODO
-  generate();
+  generate(true);
 }
 
-void Mesh::update() {
+void Mesh::update(bool resize) {
   if (m_updated) {
-    generate();
+    generate(resize);
   }
   m_updated = false;
 }
@@ -89,19 +102,8 @@ void Mesh::draw() {
 
 void Mesh::clear() {
   // Clear buffers
-  glBindVertexArray(m_mesh);
+  //glDeleteVertexArrays(1, &m_mesh);
 
-  glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-  glDeleteBuffers(1, &m_VBO);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-  glDeleteBuffers(1, &m_EBO);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-  glDeleteVertexArrays(1, &m_mesh);
-  glBindVertexArray(0);
-
-  // Re-configure
-  configure(Params());
+  // Clear params
+  m_params = Params();
 }

@@ -7,29 +7,22 @@ void genQuad(SpriteBatch::Quad &quad, const vec4 &rct, const vec4 &uvs,
 
 void applyTrx(SpriteBatch::Quad &quad, const mat4x4 &trx);
 
-void addQuadToMesh(Mesh &mesh, const SpriteBatch::Quad &quad);
+void addQuadToBatch(Batch &batch, const SpriteBatch::Quad &quad);
 
 SpriteBatch::SpriteBatch(Renderer &renderer, size_t size)
     : m_renderer(renderer) {
-  // m_quads.reserve(size);
-  m_meshId = renderer.newMesh();
-  m_meshPtr = &renderer.getMesh(m_meshId);
+  m_quads.reserve(size);
+  m_batch.resize(size * 4, size * 6);
 }
 
 SpriteBatch::~SpriteBatch() {
-  m_renderer.removeMesh(m_meshId);
-  m_meshPtr = nullptr;
 }
 
 void SpriteBatch::configure() {
-  Mesh::Params params;
-  params.meshType = Mesh::INDEXED;
-  params.meshMode = Mesh::DYNAMIC;
-  params.drawMode = Mesh::TRIANGLES;
-  m_meshPtr->configure(params);
+  m_batch.setMeshType(Batch::INDEXED);
+  m_batch.setMeshMode(Batch::DYNAMIC);
+  m_batch.setDrawMode(Batch::TRIANGLES);
 }
-
-void SpriteBatch::update() { m_meshPtr->update(); }
 
 void SpriteBatch::draw(const Camera &camera, Texture &texture, Shader &shader) {
   glDisable(GL_DEPTH_TEST);
@@ -38,20 +31,25 @@ void SpriteBatch::draw(const Camera &camera, Texture &texture, Shader &shader) {
   shader.setMat4x4("ModelView", camera.getView());
   shader.bind();
   texture.bind();
-  m_meshPtr->draw();
-}
 
-void SpriteBatch::clear() {
-  m_meshPtr->clear();
-  // m_quads.clear();
+  size_t idx = 0;
+  while (idx < m_quads.size()) {
+    for (size_t i = idx; i < idx + 100 && i < m_quads.size(); ++i) {
+      addQuadToBatch(m_batch, m_quads[i]);
+    }
+    idx += 100;
+
+    m_batch.draw();
+  }
+  m_quads.clear();
+
 }
 
 void SpriteBatch::drawSprite(const vec4 &rct, const vec4 &uvs,
                              const vec4 &color) {
   Quad quad;
   genQuad(quad, rct, uvs, color);
-  addQuadToMesh(*m_meshPtr, quad);
-  // m_quads.emplace_back(quad);
+  m_quads.emplace_back(quad);
 }
 
 void SpriteBatch::drawSprite(const vec4 &rct, const vec4 &uvs,
@@ -59,8 +57,7 @@ void SpriteBatch::drawSprite(const vec4 &rct, const vec4 &uvs,
   Quad quad;
   genQuad(quad, rct, uvs, color);
   applyTrx(quad, trx);
-  addQuadToMesh(*m_meshPtr, quad);
-  // m_quads.emplace_back(quad);
+  m_quads.emplace_back(quad);
 }
 
 void genQuad(SpriteBatch::Quad &quad, const vec4 &rct, const vec4 &uvs,
@@ -105,11 +102,11 @@ void applyTrx(SpriteBatch::Quad &quad, const mat4x4 &trx) {
   quad.v4.position = trx * quad.v4.position;
 }
 
-void addQuadToMesh(Mesh &mesh, const SpriteBatch::Quad &quad) {
-  const uint i1 = mesh.addVertex(quad.v1);
-  const uint i2 = mesh.addVertex(quad.v2);
-  const uint i3 = mesh.addVertex(quad.v3);
-  const uint i4 = mesh.addVertex(quad.v4);
-  mesh.addTriangle(i1, i3, i2);
-  mesh.addTriangle(i2, i3, i4);
+void addQuadToBatch(Batch &batch, const SpriteBatch::Quad &quad) {
+  const uint i1 = batch.addVertex(quad.v1);
+  const uint i2 = batch.addVertex(quad.v2);
+  const uint i3 = batch.addVertex(quad.v3);
+  const uint i4 = batch.addVertex(quad.v4);
+  batch.addTriangle(i1, i3, i2);
+  batch.addTriangle(i2, i3, i4);
 }

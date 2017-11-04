@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 2.8)
+set(AUDIO_HDRS
+  "${CMAKE_CURRENT_SOURCE_DIR}/Audio.hpp"
+  PARENT_SCOPE
+)
+
+set(AUDIO_SRCS
+  "${CMAKE_CURRENT_SOURCE_DIR}/Audio.cpp"
+  PARENT_SCOPE
+)

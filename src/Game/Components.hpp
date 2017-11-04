@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/Color.hpp"
-#include "Core/Engine.hpp"
+#include "Engine/Graphics/Color.hpp"
+#include "Engine/Core/Engine.hpp"
 #include <entityx/entityx.h>
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>

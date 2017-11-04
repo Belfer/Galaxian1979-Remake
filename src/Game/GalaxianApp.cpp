@@ -1,5 +1,5 @@
-#include "GalaxianApp.hpp"
-#include "Core/Global.hpp"
+#include "Game/GalaxianApp.hpp"
+#include "Engine/Core/Global.hpp"
 #include "Factory.hpp"
 #include "Systems.hpp"
 #include <GLFW/glfw3.h>

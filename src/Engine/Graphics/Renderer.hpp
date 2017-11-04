@@ -4,9 +4,9 @@
 
 #include "Camera.hpp"
 #include "Drawable.hpp"
+#include "Engine/Core/NonCopyable.hpp"
 #include "Material.hpp"
 #include "Mesh.hpp"
-#include "NonCopyable.hpp"
 #include "Shader.hpp"
 #include "Texture.hpp"
 #include <glm/glm.hpp>

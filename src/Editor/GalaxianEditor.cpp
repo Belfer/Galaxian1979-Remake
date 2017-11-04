@@ -1,8 +1,8 @@
 #include "GalaxianEditor.hpp"
-#include "Core/Color.hpp"
-#include "Core/Global.hpp"
-#include "Core/LineBatch.hpp"
-#include "Core/SpriteBatch.hpp"
+#include "Engine/Core/Global.hpp"
+#include "Engine/Graphics/Color.hpp"
+#include "Engine/Graphics/LineBatch.hpp"
+#include "Engine/Graphics/SpriteBatch.hpp"
 #include "Game/Components.hpp"
 #include "imgui_impl.h"
 #include <glm/glm.hpp>
@@ -19,7 +19,7 @@ struct Ent {
   float scl = 1;
 };
 
-#define NUM_ENTS 2000 // 4000
+#define NUM_ENTS 1000 // 4000
 Ent ents[NUM_ENTS];
 
 using namespace glm;
@@ -158,7 +158,6 @@ void GalaxianEditor::update(float dt) {
   pLineBatch->update();
 
   // float p = glfwGetTime();
-  pSpriteBatch->clear();
   for (auto &ent : ents) {
     ent.pos += ent.vel * dt;
     ent.rot += ent.trq * dt;
@@ -177,7 +176,6 @@ void GalaxianEditor::update(float dt) {
                 glm::scale(vec3(ent.scl));
     pSpriteBatch->drawSprite(spriteRct, spriteUVs, ent.col, modelview);
   }
-  pSpriteBatch->update();
   //  // std::cout << (glfwGetTime() - p) << "\n";
   // std::cout << (100 * (glfwGetTime() - p) / (1.f / 60.f)) << "\n\n";
 

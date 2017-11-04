@@ -2,8 +2,8 @@
 
 #include <glad/glad.h>
 
-#include "NonCopyable.hpp"
-#include "Types.hpp"
+#include "Engine/Core/NonCopyable.hpp"
+#include "Engine/Core/Types.hpp"
 #include <SOIL.h>
 #include <string>
 

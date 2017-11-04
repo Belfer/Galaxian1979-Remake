@@ -1,0 +1,13 @@
+cmake_minimum_required(VERSION 2.8)
+add_subdirectory(Core)
+add_subdirectory(Graphics)
+add_subdirectory(Audio)
+
+set(CORE_HDRS ${CORE_HDRS} PARENT_SCOPE)
+set(CORE_SRCS ${CORE_SRCS} PARENT_SCOPE)
+
+set(GRAPHICS_HDRS ${GRAPHICS_HDRS} PARENT_SCOPE)
+set(GRAPHICS_SRCS ${GRAPHICS_SRCS} PARENT_SCOPE)
+
+set(AUDIO_HDRS ${AUDIO_HDRS} PARENT_SCOPE)
+set(AUDIO_SRCS ${AUDIO_SRCS} PARENT_SCOPE)

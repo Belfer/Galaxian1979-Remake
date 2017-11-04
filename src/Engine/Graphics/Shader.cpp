@@ -1,5 +1,5 @@
 #include "Shader.hpp"
-#include "Util.hpp"
+#include "Engine/Core/Util.hpp"
 #include <glad/glad.h>
 
 using namespace NHTV;
